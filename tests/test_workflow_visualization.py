@@ -43,12 +43,23 @@ class WorkflowVisualizationTests(unittest.TestCase):
         ]:
             self.assertIn(phrase, text)
 
-    def test_readme_contract_has_traceable_change_fields(self):
+    def test_readme_contract_matches_handoff_template(self):
         text, _ = self.read_page()
-        for field in ["改了什么", "为什么改", "影响范围", "改动前", "改动后", "验证", "commit"]:
+        for heading in ["# 阻塞项", "# 当前摘要", "# 目标", "# 共用分支", "# 仓库矩阵",
+                        "# 验证证据", "# 下一步", "# 关键决策", "# 变更日志"]:
+            self.assertIn(heading, text)
+        for field in ["基线 commit（完整 SHA）", "当前 commit（完整 SHA）", "执行目录",
+                      "未开始", "进行中", "阻塞", "完成", "不适用"]:
             self.assertIn(field, text)
-        self.assertIn("阻塞", text)
-        self.assertIn("下一步", text)
+        for field in ["改了什么", "为什么改", "影响范围", "改动前", "改动后", "风险 / 回滚"]:
+            self.assertIn(field, text)
+
+    def test_tmp_boundary_and_cleanup_gate_are_explicit(self):
+        text, _ = self.read_page()
+        for phrase in ["各仓库 worktree 之外", "不被任何仓库 Git 跟踪",
+                       "不是 IDE 或构建临时目录", "默认保留",
+                       "单独确认归档目的地", "归档校验"]:
+            self.assertIn(phrase, text)
 
     def test_page_is_clean_offline_and_without_motion_overlays(self):
         text, parser = self.read_page()
@@ -64,6 +75,11 @@ class WorkflowVisualizationTests(unittest.TestCase):
         self.assertIn('content="0; url=visualizations/standard-workflow.html"', index)
         self.assertIn('href="visualizations/standard-workflow.html"', index)
         self.assertTrue((INDEX.parent / "visualizations/standard-workflow.html").is_file())
+        parser = PageParser()
+        parser.feed(index)
+        self.assertEqual(parser.animate_count, 0)
+        self.assertNotIn("animation", index.lower())
+        self.assertNotIn("@keyframes", index.lower())
 
 
 if __name__ == "__main__":

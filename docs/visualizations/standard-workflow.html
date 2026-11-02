@@ -93,6 +93,10 @@ strong{color:var(--ink)}
 }
 .note p{margin:0;color:var(--ink)}
 .warning{border-left-color:#b57a20;background:var(--amber-soft)}
+.scroll-hint{display:none;margin:8px 0 0;font-size:13px;color:var(--muted)}
+.status-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 8px}
+.status-row span{display:inline-block;padding:4px 11px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-size:13px;color:var(--ink)}
+.caption{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .artifact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px}
 .artifact{
   display:grid;
@@ -161,6 +165,7 @@ footer p{margin:4px 0;color:var(--muted)}
   .zoom-arrow{transform:rotate(90deg);justify-self:center}
   .artifact{grid-template-columns:1fr;gap:2px}
   .directory-tree,.example{font-size:12px;padding:16px}
+  .scroll-hint{display:block}
   .lead{font-size:17px}
 }
 @media print{
@@ -220,11 +225,11 @@ footer p{margin:4px 0;color:var(--muted)}
     <article class="card">
       <span class="card-tag">EVIDENCE</span>
       <h3><code>tmp/</code> · 本次需求的产物</h3>
-      <p>不属于业务代码，但属于这次需求本身：过程记录、验证输出和交接材料都放这里。</p>
+      <p>位于各仓库 worktree 之外的过程区：验证输出、决策记录和交接文档都放这里。</p>
       <ul>
         <li>只服务当前分支目录</li>
-        <li>不跨需求共享</li>
-        <li>清理前先归档和校验</li>
+        <li>不被仓库 Git 跟踪</li>
+        <li>默认保留，不随 worktree 清理</li>
       </ul>
     </article>
   </div>
@@ -237,17 +242,22 @@ footer p{margin:4px 0;color:var(--muted)}
 │   └── feature-a/                 <span class="comment"># 一次需求 = 一个分支名 = 一个目录</span>
 │       ├── repo-a/                <span class="comment"># 本次涉及仓库的 worktree</span>
 │       ├── repo-b/
-│       └── tmp/                   <span class="comment"># 本次需求的产物，不属于业务代码</span>
-│           ├── README.md          <span class="comment"># 总览与改动索引</span>
+│       └── tmp/                   <span class="comment"># 本次需求的产物，位于所有仓库 worktree 之外</span>
+│           ├── README.md          <span class="comment"># 交接总览 + 仓库矩阵 + 变更日志</span>
 │           ├── change-01.patch
 │           ├── verify-01.log
 │           ├── decisions.md
 │           └── sql/
 └── .branch-worktree/
     └── config.yaml                <span class="comment"># 工作区配置，不写死个人绝对路径</span></code></pre>
+  <p class="scroll-hint">窄屏可左右滑动，查看完整目录树和表格。</p>
+
+  <div class="note">
+    <p><strong>目录名以配置为准。</strong><code>main/</code> 和 <code>WorkTree/</code> 是本文示例；实际名称来自用户首次确认的 <code>mainDir</code> 与 <code>worktreeDir</code>。两者同级，不能互相嵌套。</p>
+  </div>
 
   <div class="note warning">
-    <p><strong>不要把 tmp 当成全机器共用的临时目录。</strong>它属于当前需求的分支目录；另一个需求有自己的 <code>tmp/</code>，两者不要互相复制“看起来差不多”的验证结果。</p>
+    <p><strong>tmp 不是 IDE 或构建临时目录。</strong>它位于 <code>WorkTree/&lt;branch&gt;/tmp</code>，在所有仓库 worktree 之外，因此不被任何仓库 Git 跟踪；也不是仓库内部被 <code>.gitignore</code> 忽略的 <code>tmp/</code>。另一个需求有自己的 <code>tmp/</code>，不要互相复制验证结果。</p>
   </div>
 </section>
 
@@ -261,7 +271,7 @@ footer p{margin:4px 0;color:var(--muted)}
   </div>
 
   <dl class="artifact-grid">
-    <div class="artifact"><dt>README.md</dt><dd>需求目标、仓库矩阵、改动索引、当前状态、阻塞和下一步。</dd></div>
+    <div class="artifact"><dt>README.md</dt><dd>按固定骨架记录阻塞、摘要、仓库矩阵、验证证据、下一步、决策和变更日志。</dd></div>
     <div class="artifact"><dt>*.patch / diff</dt><dd>关键改动的对照，尤其是需要 reviewer 重点看的片段。</dd></div>
     <div class="artifact"><dt>verify-*.log</dt><dd>测试、构建、静态检查的原始输出，标明命令和对应 commit。</dd></div>
     <div class="artifact"><dt>scripts/</dt><dd>复现问题、批量校验或联调用的脚本，注明用途和运行条件。</dd></div>
@@ -276,7 +286,7 @@ footer p{margin:4px 0;color:var(--muted)}
   </div>
 
   <div class="note warning">
-    <p><strong>安全边界：</strong>不把密码、token、私钥、生产凭据写进 <code>tmp/</code>；不跨需求复用验证结果；清理 worktree 前默认保留 <code>tmp/</code>，只有归档并校验通过后才移除原文件。</p>
+    <p><strong>清理默认保留 tmp。</strong>不把密码、token、私钥、生产凭据写进 <code>tmp/</code>，不跨需求复用验证结果。只有用户明确要求归档、并单独确认归档目的地后，才创建归档；归档后必须完成归档校验，逐项核对文件清单、相对路径、大小和内容校验和。校验失败则保留原文件，校验通过后才可移除原始 <code>tmp/</code>。</p>
   </div>
 </section>
 
@@ -284,58 +294,120 @@ footer p{margin:4px 0;color:var(--muted)}
   <div class="section-head">
     <div class="section-no">03</div>
     <div>
-      <h2>README：把每个改动放大</h2>
-      <p>不是流水账，也不是 commit 列表的复读机。每一条改动都要能从“一句话”展开到“可复核的证据”。</p>
+      <h2>README：先交接，再把每个改动放大</h2>
+      <p><code>tmp/README.md</code> 不是一份纯变更日志。它按 <code>templates/branch-readme.md</code> 的固定骨架先说明阻塞、状态、仓库矩阵和验证证据，再用变更日志把每一项改动展开到可复核的细节。</p>
     </div>
   </div>
 
-  <div class="zoom" aria-label="从摘要到证据的三层展开">
-    <div class="zoom-step"><b>一句话摘要</b><span>这次需求最终改变了什么</span></div>
+  <div class="zoom" aria-label="README 的三层阅读路径">
+    <div class="zoom-step"><b>固定骨架</b><span>先看阻塞、状态、目标和共用分支</span></div>
     <div class="zoom-arrow" aria-hidden="true">→</div>
-    <div class="zoom-step"><b>逐仓改动卡片</b><span>哪个仓库、哪个 commit、影响哪些范围</span></div>
+    <div class="zoom-step"><b>矩阵与证据</b><span>逐仓定位基线和当前 commit</span></div>
     <div class="zoom-arrow" aria-hidden="true">→</div>
-    <div class="zoom-step"><b>原始证据链接</b><span>日志、diff、SQL、截图和验证命令</span></div>
+    <div class="zoom-step"><b>变更日志</b><span>展开每个改动的原因、影响和验证</span></div>
   </div>
+
+  <h3>固定骨架：从阻塞项开始</h3>
+  <p>章节顺序固定。矩阵只保存当前状态索引；完整命令输出和决策材料放到 <code>tmp/</code> 的独立附件，并在对应章节链接。</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>放大项</th><th>要回答的问题</th><th>落在哪里</th></tr>
+        <tr><th>顺序</th><th>固定章节</th><th>必须写清</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>改了什么</strong></td><td>用一句话说明行为变化，不写空泛的“优化代码”</td><td>README 改动索引</td></tr>
-        <tr><td><strong>为什么改</strong></td><td>对应的 bug、需求、约束或事故结论</td><td>改动条目 + decisions.md</td></tr>
-        <tr><td><strong>影响范围</strong></td><td>涉及仓库、接口、用户路径、数据或部署单元</td><td>仓库矩阵</td></tr>
-        <tr><td><strong>改动前 / 改动后</strong></td><td>关键代码或行为对比，必要时链接 patch</td><td>patch / diff 文件</td></tr>
-        <tr><td><strong>验证</strong></td><td>跑了什么命令、在哪个目录、结果如何</td><td>verify-*.log</td></tr>
-        <tr><td><strong>commit</strong></td><td>完整 SHA，和这条改动一一对应</td><td>README 改动条目</td></tr>
-        <tr><td><strong>阻塞 / 下一步</strong></td><td>还缺什么、谁处理、什么条件下继续</td><td>README 顶部状态区</td></tr>
+        <tr><td>1</td><td><strong>阻塞项</strong></td><td>受影响仓库、缺失条件、负责人、解除条件；没有阻塞时明确写“无”。</td></tr>
+        <tr><td>2</td><td><strong>当前摘要</strong></td><td>状态、当前阶段和当前事实；状态只能从五种值中选择。</td></tr>
+        <tr><td>3</td><td><strong>目标 · 共用分支</strong></td><td>本次范围和统一的 <code>branch-name</code>。</td></tr>
+        <tr><td>4</td><td><strong>仓库矩阵</strong></td><td>仓库、路径、基线、基线 commit（完整 SHA）、当前 commit（完整 SHA）、状态、当前阶段和验证证据链接。</td></tr>
+        <tr><td>5</td><td><strong>验证证据</strong></td><td>仓库、对应 commit、命令、执行目录、结果和原始输出链接。</td></tr>
+        <tr><td>6</td><td><strong>下一步</strong></td><td>动作、执行者、等待条件；等待用户输入时写出具体问题。</td></tr>
+        <tr><td>7</td><td><strong>关键决策</strong></td><td>日期、结论、备选方案和依据，可链接到附件。</td></tr>
+        <tr><td>8</td><td><strong>变更日志</strong></td><td>日期、变更内容、commit 或证据链接；详细展开见下一节。</td></tr>
       </tbody>
     </table>
   </div>
 
-  <pre class="example" aria-label="README 改动条目示例"><code><span class="mark">### 2026-11-02 · repo-a · fix: retry failed upload</span>
+  <div class="status-row" aria-label="唯一允许的五种状态">
+    <span>未开始</span><span>进行中</span><span>阻塞</span><span>完成</span><span>不适用</span>
+  </div>
+  <p class="caption">状态只能使用以上五种。<strong>当前阶段</strong>描述正在做的工作，不是额外状态；标为“完成”必须附证据，标为“阻塞”必须填写缺失条件和负责人。矩阵中每个“验证证据”单元格都必须填写相对 <code>tmp/README.md</code> 的实际链接；证据缺失时链接到写明缺失命令、负责人和所需结果的待补记录，不能留空或编造结果。</p>
+
+  <h3>变更日志：每个改动如何放大</h3>
+  <p>日志里每一条改动都要能从一句话继续展开，回答下面七项。完整 SHA 写在条目中，验证必须包含命令、执行目录和原始输出。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>放大项</th><th>要回答的问题</th><th>写在哪里</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>改了什么</strong></td><td>具体行为发生了什么变化，不写空泛的“优化代码”</td><td>变更日志条目</td></tr>
+        <tr><td><strong>为什么改</strong></td><td>对应的 bug、需求、约束或事故结论</td><td>变更日志 + 关键决策</td></tr>
+        <tr><td><strong>影响范围</strong></td><td>涉及仓库、接口、用户路径、数据或部署单元</td><td>变更日志 + 仓库矩阵</td></tr>
+        <tr><td><strong>改动前 / 改动后</strong></td><td>关键行为或代码对比，必要时链接 patch</td><td>变更日志 + tmp 附件</td></tr>
+        <tr><td><strong>验证</strong></td><td>命令、执行目录、结果和原始输出，全部对应同一个 commit</td><td>验证证据表 + 变更日志</td></tr>
+        <tr><td><strong>commit</strong></td><td>用完整 SHA 关联改动、矩阵和证据</td><td>仓库矩阵 + 变更日志</td></tr>
+        <tr><td><strong>风险 / 回滚</strong></td><td>最坏影响是什么，如何回滚，是否有未验证部分</td><td>变更日志条目</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre class="example" aria-label="tmp README 固定结构示例"><code><span class="mark"># 阻塞项</span>
+| 仓库 | 缺失条件 | 负责人 | 解除条件 |
+|---|---|---|---|
+| repo-b | 测试环境未恢复 | 平台值班 | 环境可访问并跑通集成测试 |
+
+<span class="mark"># 当前摘要</span>
+- 状态：阻塞
+- 当前阶段：等待 repo-b 集成验证
+- 摘要：repo-a 已完成并验证；repo-b 阻塞，原因见阻塞项。
+
+<span class="mark"># 目标</span>
+补齐上传失败重试与提示，减少网络抖动导致的误失败。
+
+<span class="mark"># 共用分支</span>
+feature-upload-retry
+
+<span class="mark"># 仓库矩阵</span>
+| 仓库 | 路径 | 基线 | 基线 commit（完整 SHA） | 当前 commit（完整 SHA） | 状态 | 当前阶段 | 验证证据 |
+|---|---|---|---|---|---|---|---|
+| repo-a | .../feature-upload-retry/repo-a | origin/main | 4c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60718293 | 9f3c2a1d7b6e4f8091a2c3d4e5f60718293a4b5c | 完成 | 已验证 | [verify-01.log](verify-01.log) |
+| repo-b | .../feature-upload-retry/repo-b | origin/main | 7a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d | 1b2c3d4e5f60718293a4b5c6d7e8f90123456789 | 阻塞 | 等待环境 | [pending-evidence.md](pending-evidence.md) |
+
+<span class="mark"># 验证证据</span>
+| 仓库 | 对应 commit | 命令 | 执行目录 | 结果 | 原始输出 |
+|---|---|---|---|---|---|
+| repo-a | 9f3c2a1d7b6e4f8091a2c3d4e5f60718293a4b5c | go test ./upload/... | .../feature-upload-retry/repo-a | 18 passed | [verify-01.log](verify-01.log) |
+
+<span class="mark"># 下一步</span>
+| 动作 | 执行者 | 等待条件 |
+|---|---|---|
+| 运行 repo-b 集成测试 | 平台值班 | 测试环境恢复 |
+
+<span class="mark"># 关键决策</span>
+- 2026-11-02：只重试可重试错误，避免重复写入；备选“全部重试”因副作用被排除。
+
+<span class="mark"># 变更日志</span>
+- 2026-11-02：上传失败增加有限重试；commit / 证据：`9f3c2a1...` / [详情](verify-01.log)
+- 2026-11-02：最终失败展示可操作提示；commit / 证据：`1b2c3d4...` / [详情](verify-02.log)</code></pre>
+
+  <pre class="example" aria-label="单个改动展开示例"><code><span class="mark">### 2026-11-02 · repo-a · fix: retry failed upload</span>
 
 <span class="field">改了什么</span>  上传失败后最多重试 2 次，避免一次性网络抖动直接失败
 <span class="field">为什么改</span>  事故 #4812：上传超时被误判为业务失败，用户看到空结果
 <span class="field">影响范围</span>  文件上传接口；不改变请求参数和返回结构
 <span class="field">改动前</span>  首次失败立即抛出异常
 <span class="field">改动后</span>  仅对可重试错误重试，最终失败仍返回原错误
-<span class="field">验证</span>  go test ./upload/... → 18 passed
-        <span class="mark">[原始输出](verify-01.log)</span>
+<span class="field">验证</span>  命令：go test ./upload/...
+        执行目录：.../feature-upload-retry/repo-a
+        结果：18 passed
+        原始输出：[verify-01.log](verify-01.log)
 <span class="field">commit</span>  9f3c2a1d7b6e4f8091a2c3d4e5f60718293a4b5c
-<span class="field">风险 / 回滚</span>  重试会延长最坏耗时 2 秒；回滚该 commit 即恢复旧行为
-
-<span class="mark">### 2026-11-02 · repo-b · feat: show upload warning</span>
-
-<span class="field">改了什么</span>  上传最终失败时展示可操作的错误提示
-<span class="field">为什么改</span>  与 repo-a 的上传错误语义对齐
-<span class="field">验证</span>  pnpm test upload → 32 passed
-        <span class="mark">[原始输出](verify-02.log)</span>
-<span class="field">commit</span>  1b2c3d4e5f60718293a4b5c6d7e8f90123456789</code></pre>
+<span class="field">风险 / 回滚</span>  最坏耗时增加 2 秒；回滚该 commit 即恢复旧行为</code></pre>
 
   <div class="note">
-    <p><strong>“放大”不是把内容写长，而是把证据链补全。</strong>摘要让人 30 秒知道结论，条目让人 5 分钟核对一个仓库，链接让人随时回到原始输出。无法验证的部分要明确写成“未验证”，不能补写成成功。</p>
+    <p><strong>“放大”不是把内容写长，而是让每条结论都能回到原始证据。</strong>矩阵提供索引，变更日志展开原因、影响和验证，附件保存原始输出。无法验证的部分明确写“未验证”，不得改写成成功。</p>
   </div>
 </section>
 
