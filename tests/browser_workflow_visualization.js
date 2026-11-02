@@ -151,7 +151,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   value = await evaluate(`getComputedStyle(document.querySelector('.diagram svg')).width`);
   assert(value === "800px", `mobile diagram width: ${value}`);
   socket.close();
+  process.exit(0);
 })().catch((error) => {
   console.error(error);
-  process.exitCode = 1;
+  process.exit(1);
 });
