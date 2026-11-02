@@ -31,5 +31,35 @@ class BranchHandoffTests(unittest.TestCase):
         for token in ["基线", "当前 commit", "验证证据", "负责人", "下一步"]:
             self.assertIn(token, template)
 
+    def test_matrix_evidence_cells_require_actual_relative_links(self):
+        for relative in ["references/handoff.md", "templates/branch-readme.md"]:
+            with self.subTest(document=relative):
+                text = read_product(self, relative)
+                for token in [
+                    "每个“验证证据”单元格",
+                    "Markdown 链接",
+                    "相对 `tmp/README.md`",
+                    "替换",
+                    "实际目标",
+                    "不得原样复制",
+                ]:
+                    self.assertIn(token, text)
+
+    def test_missing_evidence_requires_linked_tmp_pending_record(self):
+        for relative in ["references/handoff.md", "templates/branch-readme.md"]:
+            with self.subTest(document=relative):
+                text = read_product(self, relative)
+                for token in [
+                    "证据缺失",
+                    "tmp/",
+                    "待补证据记录",
+                    "缺失命令",
+                    "负责人",
+                    "所需结果",
+                    "链接到该记录",
+                    "不得编造",
+                ]:
+                    self.assertIn(token, text)
+
 if __name__ == "__main__":
     unittest.main()
