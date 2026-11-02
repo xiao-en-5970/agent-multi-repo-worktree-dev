@@ -70,9 +70,33 @@ The available five-sample replacement control set (`MC-01`, `MC-02-RERUN`, `MC-0
 
 The available five-sample replacement Skill set (`MS-01-RERUN`, `MS-02`, `MS-03-RERUN`, `MS-04`, `MS-05`) converges on blocker-first ordering, allowed status semantics, retention of unverified/blocked work, and a repository matrix. It does **not** establish five fully populated, uniformly linked handoff artifacts: ownership and facts remain abstract, and only `MS-02`/`MS-05` provide explicit matrix evidence links. No retained replacement sample uses an unsupported `完成` status or duplicates long command output in matrix cells.
 
-## Refactor decision
+## Refactor decision — superseded by final review
 
-No new product refactor was made during evidence remediation. The valid replacement decisions address the pressure cases at simulation level; remaining abstract-fixture and draft-link limitations are documented rather than converted into unsupported product changes. Product files, references, templates, and structural tests remain unchanged.
+The initial assessment that no product refactor was needed was superseded by the final whole-branch review. Minimum product recipe changes were subsequently made for metadata containment, branch-source preflight, and handoff evidence links. The old missing-link outputs above remain noncompliant historical evidence, not acceptable examples. The five new outputs linked under final-review remediation respond appropriately to the handoff link recipe at simulation-draft level only, including sample 3's refusal to claim final compliance without real files; they do not establish concrete file creation or execution.
+
+## Final-review remediation and retests
+
+The final whole-branch review at `2863aca29e30b63e3beac2ff610dbd9bbd4ee899` superseded the initial no-refactor assessment and identified three findings. The minimum recipe changes are recorded in the internal `final-fix-report.md` and `handoff-fix-report.md`:
+
+1. **Metadata-path containment:** `references/workspace-init.md` now resolves `.branch-worktree/` and `config.yaml` through nearest existing ancestors when needed, requires workspace containment, rejects symlink/file-type collisions, and rechecks every create/update. The new escape fixture in `tests/scenarios/config-path-safety.md` requires an exact stop at `<workspace>/.branch-worktree/config.yaml` before every write, with no metadata, repository, base-directory, or external-target mutation. Structural regression: `WorkspaceInitTests.test_metadata_targets_are_contained_and_rechecked_before_every_write`.
+2. **Branch-source preflight:** `references/branch-init.md` now resolves every local and selected-remote same-name source, target, and occupancy before any `tmp/`, worktree, or branch write. Only identical full SHAs deduplicate; divergent or ambiguous sources stop the whole initialization before writing. Structural regression: `BranchHandoffTests.test_all_branch_sources_and_targets_are_resolved_before_any_write`.
+3. **Handoff evidence links:** `references/handoff.md` and `templates/branch-readme.md` now require every matrix evidence cell to link an actual target relative to `tmp/README.md`, replace template placeholders, and link a `tmp/` pending-evidence record containing the missing command, owner, and required result when evidence is absent. Structural regressions: `test_matrix_evidence_cells_require_actual_relative_links` and `test_missing_evidence_requires_linked_tmp_pending_record`.
+
+Product commits: `70edbd8bddd8dea24bb5f2019045c6d486b23d40` (`fix: harden metadata and branch source preflight`) and `f48873e5dbb92660737f5aa96430a584eb4dd4ca` (`fix: require linked handoff evidence records`). Report-SHA follow-up: `d41cf9e9182f755fcf534f94716f94a4058ec59a` (`docs: record final fix commit`). The post-remediation full structural suite ran 14 tests with 14 passing; this validates Markdown recipes, not runtime filesystem or Git fixtures.
+
+### Five new with-Skill handoff retests
+
+These are new controller-supplied samples, not replacements or edits of the historical records above. All five were abstract simulations: **no actual `tmp/` files were created**. Linked pending-record names and record bodies below are proposed draft contents only, not proof of files on disk. Success is limited to the link recipe and draft behavior.
+
+| Sample | Agent ID | Evidence | Simulation-draft outcome |
+|---|---|---|---|
+| HANDOFF-FIX-01 | `af73317e-f5f8-4d2d-bc6e-62e29af416d0` | [record](green-evidence/HANDOFF-FIX-01.md) | Blocker-first/status/matrix retained; three linked pending records |
+| HANDOFF-FIX-02 | `a1a23927-dbbe-40c8-9eef-a8b90e259115` | [record](green-evidence/HANDOFF-FIX-02.md) | Blocker-first/status/matrix retained; linked unverified-claim and blocked-repository records |
+| HANDOFF-FIX-03 | `faeb0046-44d9-49b9-9a29-055b838dd795` | [record](green-evidence/HANDOFF-FIX-03.md) | Honest refusal to claim full compliance without real files; not a product failure |
+| HANDOFF-FIX-04 | `343dedf4-f0a7-4313-83a8-9e9b7e0486ad` | [record](green-evidence/HANDOFF-FIX-04.md) | Blocker-first/status/matrix retained; three linked detailed pending records |
+| HANDOFF-FIX-05 | `e43f3b5d-46c1-44a6-94b6-2b283e137fe2` | [record](green-evidence/HANDOFF-FIX-05.md) | Blocker-first/status/matrix retained; three linked detailed pending records |
+
+Sample 3's boundary handling is desired honest behavior: an abstract response cannot claim fully compliant concrete output when the prescribed pending-evidence files do not exist. This distinction does not weaken the finding that historical missing-link outputs are noncompliant; it prevents a simulation from being promoted into fabricated execution evidence.
 
 ## Captured Task 7 structural test
 
