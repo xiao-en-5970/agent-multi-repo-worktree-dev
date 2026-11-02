@@ -2,7 +2,6 @@
 // then run `node tests/browser_workflow_visualization.js`.
 // This does not run during the standard-library suite or CI.
 const http = require("http");
-
 const path = require("path");
 
 function get(pathname) {
@@ -53,103 +52,63 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     console.log("PASS", message);
   }
 
+  const pageUrl = `file://${path.resolve(__dirname, "../docs/visualizations/standard-workflow.html")}`;
+  const indexUrl = `file://${path.resolve(__dirname, "../docs/index.html")}`;
+
   await call("Page.enable");
   await call("Network.enable");
   await call("Network.setCacheDisabled", { cacheDisabled: true });
   await call("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
-  await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
-  await call("Page.navigate", { url: `file://${path.resolve(__dirname, "../docs/visualizations/standard-workflow.html")}` });
-  await delay(500);
+  await call("Page.navigate", { url: pageUrl });
+  await delay(350);
 
-  let value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => !svg.animationsPaused())`);
-  assert(value, "default SMIL animations run");
-  value = await evaluate(`(() => {
-    const scene = document.querySelector('header.hero > svg');
-    const lineY = scene.querySelector('path').getBoundingClientRect().y;
-    const label = Array.from(scene.querySelectorAll('text')).find(el => el.textContent === '统一基座').getBoundingClientRect();
-    return lineY < label.top || lineY > label.bottom;
-  })()`);
-  assert(value, "hero connector stays outside primary-checkout label");
-  value = await evaluate(`(() => {
-    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-    const scene = document.querySelector('header.hero > svg');
-    const note = Array.from(scene.querySelectorAll('text')).find(el => el.textContent === '同一基线，不同工作现场').getBoundingClientRect();
-    return Array.from(scene.querySelectorAll('rect')).every(el => !intersects(note, el.getBoundingClientRect()));
-  })()`);
-  assert(value, "hero note stays in separate whitespace");
-  value = await evaluate(`(() => {
-    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-    const scene = document.querySelector('#boundary svg');
-    const cards = Array.from(scene.querySelectorAll(':scope > g > rect'));
-    return cards.every((card, index) => cards.slice(index + 1).every(other => !intersects(card.getBoundingClientRect(), other.getBoundingClientRect())));
-  })()`);
-  assert(value, "boundary cards do not overlap");
-  value = await evaluate(`(() => {
-    const scene = document.querySelector('#preflight svg');
-    const path = Array.from(scene.querySelectorAll('path')).find(el => el.getAttribute('d') === 'M205 180h100M395 180h100M585 180h100M775 180h100');
-    const strokeWidth = Number(getComputedStyle(path).strokeWidth);
-    const ctm = path.getScreenCTM();
-    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-    const labels = Array.from(scene.querySelectorAll('text')).map(el => el.getBoundingClientRect());
-    return Array.from({ length: 101 }, (_, index) => {
-      const point = path.getPointAtLength(path.getTotalLength() * index / 100).matrixTransform(ctm);
-      const box = { left: point.x - strokeWidth / 2 - 2, right: point.x + strokeWidth / 2 + 2, top: point.y - strokeWidth / 2 - 2, bottom: point.y + strokeWidth / 2 + 2 };
-      return labels.every(label => !intersects(box, label));
-    }).every(Boolean);
-  })()`);
-  assert(value, "segmented preflight connector strokes avoid every checkpoint label");
-  value = await evaluate(`(() => {
-    const scene = document.querySelector('#preflight svg');
-    const check = scene.querySelector('path[d="M900 70l15 15 28-32"]');
-    if (!check) return false;
-    const point = check.getPointAtLength(check.getTotalLength() * 0.9).matrixTransform(check.getScreenCTM());
-    const label = Array.from(scene.querySelectorAll('text')).find(el => el.textContent.includes('重复键')).getBoundingClientRect();
-    const strokeWidth = Number(getComputedStyle(check).strokeWidth);
-    return point.x < label.left || point.x > label.right || point.y - strokeWidth / 2 > label.bottom || point.y + strokeWidth / 2 < label.top;
-  })()`);
-  assert(value, "preflight checkmark does not cross warning text");
-  await delay(3600);
-  value = await evaluate(`(() => {
-    const scene = document.querySelector('header.hero > svg');
-    const lineY = scene.querySelector('path').getBoundingClientRect().y;
-    const label = Array.from(scene.querySelectorAll('text')).find(el => el.textContent === '统一基座').getBoundingClientRect();
-    return lineY < label.top || lineY > label.bottom;
-  })()`);
-  assert(value, "hero connector remains outside label at a later animation phase");
-  value = await evaluate(`(() => {
-    const card = document.querySelector('#handoff svg > g > rect').getBoundingClientRect();
-    const indicator = document.querySelector('#handoff svg > g.pulse > circle').getBoundingClientRect();
-    return indicator.right < card.left || indicator.left > card.right || indicator.bottom < card.top || indicator.top > card.bottom;
-  })()`);
-  assert(value, "handoff status indicator stays outside document frame");
-  await evaluate(`document.getElementById('motion-toggle').click()`);
-  value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => svg.animationsPaused()) && document.body.classList.contains('paused')`);
-  assert(value, "pause stops SMIL and CSS");
-  await evaluate(`document.getElementById('motion-toggle').click()`);
-  value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => !svg.animationsPaused()) && !document.body.classList.contains('paused')`);
-  assert(value, "resume restarts SMIL and CSS");
-  await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
-  await delay(100);
-  value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => svg.animationsPaused()) && document.getElementById('motion-toggle').getAttribute('aria-pressed') === 'true'`);
-  assert(value, "live reduced-motion pauses SMIL");
-  await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
-  await delay(100);
-  value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => !svg.animationsPaused())`);
-  assert(value, "live preference removal resumes SMIL");
-  await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
-  await call("Page.reload");
-  await delay(400);
-  value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => svg.animationsPaused())`);
-  assert(value, "initial reduced-motion pauses SMIL");
-  await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  value = await evaluate(`Array.from(document.querySelectorAll('.diagram')).every(el => el.scrollWidth <= el.clientWidth || getComputedStyle(el).overflowX === 'auto')`);
-  assert(value, "mobile diagrams accessible by horizontal scroll");
-  value = await evaluate(`(() => { const el = document.querySelector('.diagram'); el.scrollLeft = 100; return el.scrollLeft === 100; })()`);
-  assert(value, "mobile diagram supports actual horizontal scroll movement");
+  let value = await evaluate(`document.title.includes('main · WorkTree · tmp')`);
+  assert(value, "page has the expected title");
+  value = await evaluate(`Array.from(document.querySelectorAll('section')).map(section => section.id).join(',') === 'directories,tmp,readme,value'`);
+  assert(value, "page has the four intended sections");
+  value = await evaluate(`Array.from(document.querySelectorAll('h2')).every(heading => heading.getBoundingClientRect().width > 0 && heading.getBoundingClientRect().height > 0)`);
+  assert(value, "all section headings are rendered");
   value = await evaluate(`document.documentElement.scrollWidth <= document.documentElement.clientWidth`);
-  assert(value, "no page-level horizontal overflow");
-  value = await evaluate(`getComputedStyle(document.querySelector('.diagram svg')).width`);
-  assert(value === "800px", `mobile diagram width: ${value}`);
+  assert(value, "desktop page has no horizontal overflow");
+  value = await evaluate(`document.getAnimations({ subtree: true }).length === 0`);
+  assert(value, "page has no motion animations competing with content");
+  value = await evaluate(`(() => {
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const cards = Array.from(document.querySelectorAll('.grid > .card')).map(card => card.getBoundingClientRect());
+    return cards.every((card, index) => cards.slice(index + 1).every(other => !intersects(card, other)));
+  })()`);
+  assert(value, "directory cards do not overlap");
+  value = await evaluate(`Array.from(document.querySelectorAll('.card, .check, .zoom-step')).every(el => {
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0 && rect.left >= 0 && rect.right <= document.documentElement.clientWidth;
+  })`);
+  assert(value, "desktop content remains within the viewport");
+  value = await evaluate(`document.querySelector('.directory-tree').scrollWidth <= document.querySelector('.directory-tree').clientWidth + 1 || getComputedStyle(document.querySelector('.directory-tree')).overflowX === 'auto'`);
+  assert(value, "directory tree is readable or horizontally scrollable");
+
+  await call("Page.navigate", { url: indexUrl });
+  await delay(500);
+  value = await evaluate(`document.title.includes('main · WorkTree · tmp')`);
+  assert(value, "docs root redirects to the workflow page");
+
+  await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await call("Page.navigate", { url: pageUrl });
+  await delay(350);
+  value = await evaluate(`document.documentElement.scrollWidth <= document.documentElement.clientWidth`);
+  assert(value, "mobile page has no horizontal overflow");
+  value = await evaluate(`getComputedStyle(document.querySelector('.grid')).gridTemplateColumns.split(' ').length === 1`);
+  assert(value, "mobile directory cards stack in one column");
+  value = await evaluate(`Array.from(document.querySelectorAll('h1,h2,h3,p,li,td')).every(el => parseFloat(getComputedStyle(el).fontSize) >= 12)`);
+  assert(value, "mobile text stays at a readable size");
+  value = await evaluate(`(() => {
+    const tree = document.querySelector('.directory-tree');
+    tree.scrollLeft = 24;
+    return tree.scrollLeft === 24 || tree.scrollWidth <= tree.clientWidth;
+  })()`);
+  assert(value, "mobile directory tree is accessible without clipping content");
+  value = await evaluate(`Array.from(document.querySelectorAll('.card, .check, .zoom-step')).every(el => el.getBoundingClientRect().right <= document.documentElement.clientWidth + 1)`);
+  assert(value, "mobile content remains within the viewport");
+
   socket.close();
   process.exit(0);
 })().catch((error) => {

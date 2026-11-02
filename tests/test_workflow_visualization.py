@@ -7,25 +7,19 @@ PAGE = ROOT / "docs/visualizations/standard-workflow.html"
 INDEX = ROOT / "docs/index.html"
 
 
-class WorkflowPageParser(HTMLParser):
+class PageParser(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.svg_count = 0
-        self.animate_count = 0
         self.section_ids = set()
-        self.button_ids = set()
         self.external_references = []
+        self.animate_count = 0
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
-        if tag == "svg":
-            self.svg_count += 1
-        if tag in {"animate", "animateTransform", "animateMotion"}:
-            self.animate_count += 1
         if tag == "section" and "id" in values:
             self.section_ids.add(values["id"])
-        if tag == "button" and "id" in values:
-            self.button_ids.add(values["id"])
+        if tag in {"animate", "animateTransform", "animateMotion"}:
+            self.animate_count += 1
         for name in ("src", "href", "xlink:href"):
             value = values.get(name, "")
             if value.startswith(("https://", "http://", "//")):
@@ -36,26 +30,32 @@ class WorkflowVisualizationTests(unittest.TestCase):
     def read_page(self):
         self.assertTrue(PAGE.is_file(), "missing docs/visualizations/standard-workflow.html")
         text = PAGE.read_text()
-        self.parser = WorkflowPageParser()
-        self.parser.feed(text)
-        return text
+        parser = PageParser()
+        parser.feed(text)
+        return text, parser
 
-    def test_page_has_six_narrative_scenes_and_svg_animation(self):
-        parser_text = self.read_page()
-        expected = {
-            "boundary", "preflight", "isolation",
-            "evidence", "handoff", "advantages",
-        }
-        self.assertEqual(self.parser.section_ids, expected)
-        self.assertGreaterEqual(self.parser.svg_count, 6)
-        self.assertGreaterEqual(self.parser.animate_count, 8)
-        self.assertIn("规范不是额外负担", parser_text)
+    def test_page_explains_main_worktree_and_tmp(self):
+        text, parser = self.read_page()
+        self.assertEqual(parser.section_ids, {"directories", "tmp", "readme", "value"})
+        for phrase in [
+            "main/", "WorkTree/", "tmp/",
+            "本次需求的产物", "tmp/README.md", "把每个改动放大",
+        ]:
+            self.assertIn(phrase, text)
 
-    def test_page_is_offline_accessible_and_motion_controllable(self):
-        self.read_page()
-        self.assertEqual(self.parser.external_references, [])
-        self.assertIn("motion-toggle", self.parser.button_ids)
-        self.assertIn("prefers-reduced-motion", PAGE.read_text())
+    def test_readme_contract_has_traceable_change_fields(self):
+        text, _ = self.read_page()
+        for field in ["改了什么", "为什么改", "影响范围", "改动前", "改动后", "验证", "commit"]:
+            self.assertIn(field, text)
+        self.assertIn("阻塞", text)
+        self.assertIn("下一步", text)
+
+    def test_page_is_clean_offline_and_without_motion_overlays(self):
+        text, parser = self.read_page()
+        self.assertEqual(parser.external_references, [])
+        self.assertEqual(parser.animate_count, 0)
+        self.assertNotIn("position:fixed", text)
+        self.assertNotIn("position: absolute", text)
 
     def test_docs_root_redirects_to_workflow_page(self):
         self.assertTrue(INDEX.is_file(), "missing docs/index.html")
