@@ -54,6 +54,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   await call("Page.enable");
+  await call("Network.enable");
+  await call("Network.setCacheDisabled", { cacheDisabled: true });
   await call("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await call("Page.navigate", { url: `file://${path.resolve(__dirname, "../docs/visualizations/standard-workflow.html")}` });
@@ -61,6 +63,65 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   let value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => !svg.animationsPaused())`);
   assert(value, "default SMIL animations run");
+  value = await evaluate(`(() => {
+    const scene = document.querySelector('header.hero > svg');
+    const lineY = scene.querySelector('path').getBoundingClientRect().y;
+    const label = Array.from(scene.querySelectorAll('text')).find(el => el.textContent === '统一基座').getBoundingClientRect();
+    return lineY < label.top || lineY > label.bottom;
+  })()`);
+  assert(value, "hero connector stays outside primary-checkout label");
+  value = await evaluate(`(() => {
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const scene = document.querySelector('header.hero > svg');
+    const note = Array.from(scene.querySelectorAll('text')).find(el => el.textContent === '同一基线，不同工作现场').getBoundingClientRect();
+    return Array.from(scene.querySelectorAll('rect')).every(el => !intersects(note, el.getBoundingClientRect()));
+  })()`);
+  assert(value, "hero note stays in separate whitespace");
+  value = await evaluate(`(() => {
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const scene = document.querySelector('#boundary svg');
+    const cards = Array.from(scene.querySelectorAll(':scope > g > rect'));
+    return cards.every((card, index) => cards.slice(index + 1).every(other => !intersects(card.getBoundingClientRect(), other.getBoundingClientRect())));
+  })()`);
+  assert(value, "boundary cards do not overlap");
+  value = await evaluate(`(() => {
+    const scene = document.querySelector('#preflight svg');
+    const path = Array.from(scene.querySelectorAll('path')).find(el => el.getAttribute('d') === 'M205 180h100M395 180h100M585 180h100M775 180h100');
+    const strokeWidth = Number(getComputedStyle(path).strokeWidth);
+    const ctm = path.getScreenCTM();
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const labels = Array.from(scene.querySelectorAll('text')).map(el => el.getBoundingClientRect());
+    return Array.from({ length: 101 }, (_, index) => {
+      const point = path.getPointAtLength(path.getTotalLength() * index / 100).matrixTransform(ctm);
+      const box = { left: point.x - strokeWidth / 2 - 2, right: point.x + strokeWidth / 2 + 2, top: point.y - strokeWidth / 2 - 2, bottom: point.y + strokeWidth / 2 + 2 };
+      return labels.every(label => !intersects(box, label));
+    }).every(Boolean);
+  })()`);
+  assert(value, "segmented preflight connector strokes avoid every checkpoint label");
+  value = await evaluate(`(() => {
+    const scene = document.querySelector('#preflight svg');
+    const check = scene.querySelector('path[d="M900 70l15 15 28-32"]');
+    if (!check) return false;
+    const point = check.getPointAtLength(check.getTotalLength() * 0.9).matrixTransform(check.getScreenCTM());
+    const label = Array.from(scene.querySelectorAll('text')).find(el => el.textContent.includes('重复键')).getBoundingClientRect();
+    const strokeWidth = Number(getComputedStyle(check).strokeWidth);
+    return point.x < label.left || point.x > label.right || point.y - strokeWidth / 2 > label.bottom || point.y + strokeWidth / 2 < label.top;
+  })()`);
+  assert(value, "preflight checkmark does not cross warning text");
+  await delay(3600);
+  value = await evaluate(`(() => {
+    const scene = document.querySelector('header.hero > svg');
+    const lineY = scene.querySelector('path').getBoundingClientRect().y;
+    const label = Array.from(scene.querySelectorAll('text')).find(el => el.textContent === '统一基座').getBoundingClientRect();
+    return lineY < label.top || lineY > label.bottom;
+  })()`);
+  assert(value, "hero connector remains outside label at a later animation phase");
+  value = await evaluate(`(() => {
+    const card = document.querySelector('#handoff svg > g > rect').getBoundingClientRect();
+    const indicator = document.querySelector('#handoff svg > g.pulse > circle').getBoundingClientRect();
+    return indicator.right < card.left || indicator.left > card.right || indicator.bottom < card.top || indicator.top > card.bottom;
+  })()`);
+  assert(value, "handoff status indicator stays outside document frame");
   await evaluate(`document.getElementById('motion-toggle').click()`);
   value = await evaluate(`Array.from(document.querySelectorAll('svg')).every(svg => svg.animationsPaused()) && document.body.classList.contains('paused')`);
   assert(value, "pause stops SMIL and CSS");
