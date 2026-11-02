@@ -10,9 +10,20 @@ Clone or copy this repository into a skills directory supported by your agent, k
 
 Ask your agent:
 
-> Use agent-multi-repo-worktree-dev to initialize my multi-repository workspace. Ask me to choose and confirm the primary-checkout base directory and worktree base directory before creating anything.
+> Use agent-multi-repo-worktree-dev to initialize my multi-repository workspace. Ask me for and confirm the main base directory and the WorkTree base directory before creating anything. Do not create branch worktrees in this step.
 
-The agent will request any missing workspace and repository information and show proposed changes for confirmation.
+This step only establishes the workspace configuration and the two base directories. The agent will request the two paths, show the proposed structure, and wait for confirmation.
+
+## Ongoing Use
+
+For each new requirement, provide the requirement source, a shared branch name, and optionally the repositories:
+
+> Requirement: <document link or pasted brief>
+> Branch: fix-upload-retry
+> Repositories: repo-a, repo-b (optional; infer them from the requirement if omitted)
+> Do a read-only preflight, list the paths you will create or reuse, then create all frontend/backend worktrees needed for joint debugging in one pass.
+
+When the repository list is omitted, the agent derives candidate repositories from the requirement, shows the candidates and rationale, and waits for confirmation before writing. It does not clone or register unlisted repositories by itself. Creating the worktrees prepares the joint-debugging workspace; dependency installation, service startup, and deployment remain separately confirmed actions.
 
 ## Directory Model
 

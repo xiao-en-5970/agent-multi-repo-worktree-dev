@@ -39,6 +39,31 @@ class BranchHandoffTests(unittest.TestCase):
         write = text.index("**校验通过后写入。**")
         self.assertLess(preflight, write)
 
+    def test_branch_init_accepts_requirement_and_optional_repository_list(self):
+        text = read_product(self, "references/branch-init.md")
+        for token in [
+            "需求来源", "共用分支名", "可选", "候选仓库", "需求文档",
+            "服务名", "接口/页面范围", "不得仅凭名称", "前后端联调",
+            "确认候选仓库", "不自动 clone",
+        ]:
+            self.assertIn(token, text)
+
+    def test_readme_separates_first_use_from_ongoing_requirements(self):
+        readme = read_product(self, "README.md")
+        for token in [
+            "First Use", "Ongoing Use", "Do not create branch worktrees in this step",
+            "optional", "infer them from the requirement", "frontend/backend",
+            "separately confirmed actions",
+        ]:
+            self.assertIn(token, readme)
+        skill = read_product(self, "SKILL.md")
+        for token in [
+            "First-use setup requires only the two base directories as initial input",
+            "repositories may be named explicitly or derived from the requirement",
+            "one initialization pass",
+        ]:
+            self.assertIn(token, skill)
+
     def test_handoff_and_template_share_status_contract(self):
         reference = read_product(self, "references/handoff.md")
         template = read_product(self, "templates/branch-readme.md")

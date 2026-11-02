@@ -12,7 +12,7 @@ Load the reference matching the request; keep its complete procedure in that fil
 | Request | Reference |
 |---|---|
 | First-use setup, workspace adoption, missing or invalid configuration | [Workspace initialization](references/workspace-init.md) |
-| Create, supplement, or resume multi-repository branch worktrees | [Branch initialization](references/branch-init.md) |
+| Create, supplement, or resume multi-repository branch worktrees from a requirement source, shared branch name, and optional repository list | [Branch initialization](references/branch-init.md) |
 | Inspect, repair, prune, or clean existing worktrees | [Maintenance](references/maintenance.md) |
 | Create or update branch records, progress, evidence, or handoff | [Handoff](references/handoff.md) |
 | Discover or execute repository-specific deployment | [Deployment discovery](references/deployment.md) |
@@ -22,6 +22,8 @@ Load the reference matching the request; keep its complete procedure in that fil
 Discover configuration from an explicitly supplied workspace or file first; otherwise search upward for the nearest `.branch-worktree/config.yaml`. If none exists, use workspace initialization and obtain both base-directory choices before writing. Never substitute a personal or built-in path.
 
 One development effort uses one shared branch name and one directory: `<workspace>/<worktreeDir>/<branch>/`. The `mainDir` base contains each repository's primary checkout; development occurs in isolated worktrees under `worktreeDir`. Record primary-checkout drift without switching or modifying it, and derive baselines according to branch initialization.
+
+First-use setup requires only the two base directories as initial input; repository registration is derived from the confirmed main base and configuration, with ambiguity resolved by asking. Branch initialization accepts a requirement source and shared branch name; repositories may be named explicitly or derived from the requirement, with the candidate set confirmed before writes. A requested frontend/backend integration creates all confirmed repositories' worktrees under the same branch directory in one initialization pass. Dependency installation, service startup, and deployment remain separate confirmed actions.
 
 Do not develop from a confirmed deployment-environment branch or reverse-merge environment branches. Establish non-default baselines from project instructions or CI/CD evidence rather than branch names.
 
