@@ -1,70 +1,108 @@
 # GREEN Behavior Verification
 
-Date: 2026-11-02
+Date: 2026-11-02; evidence remediation: 2026-11-02
 
-## Method and limits
+## Method, provenance, and limits
 
-Six fresh agents received the same abstract Context, Input, and Pressure used by the baseline, plus `SKILL.md` and only the reference files routed by the scenario. They did not receive the baseline, Expected criteria, or validation records. Each was instructed to simulate decisions without real writes or further subagents.
+This report now links a redacted, criterion-auditable Markdown record for every original sample. Original raw captures were available for 14 of the 16 requested IDs; `MC-02` and `MC-03` have explicit omission records rather than reconstructed responses. The raw records remain in ignored execution records and are not copied wholesale.
 
-The evidence verifies decision-level compliance under pressure. It does not prove concrete YAML diagnostics, repository operations, CI file/line discovery, archive contents, or deployment results; the abstract fixtures contain no such concrete inputs. Agents proposing read-only commands did not mutate the workspace. Agent identifiers below are report-local trace IDs, not recovered session identifiers.
+The controller separately orchestrated six valid-isolation replacements after review: `GR-01-RERUN`, `GR-03-RERUN`, `MC-02-RERUN`, `MC-03-RERUN`, `MS-01-RERUN`, and `MS-03-RERUN`. Their full raw prompt/response captures were reviewed for this publication. They are additional samples, not rewrites of the originals. This evidence-remediation work did not execute behavior reruns.
 
-## Main scenarios
+All scenarios were abstract decision simulations. They do not prove concrete YAML/schema diagnostics, filesystem containment, fetch results, full SHAs, worktree state, CI file/line discovery, archive integrity, deployment outcomes, named ownership, or verification evidence. “Compliant” below is therefore limited to the stated decision or draft structure unless concrete execution is separately identified.
 
-### GR-01 — First use: compliant
+## Main scenarios: original samples and independent replacements
 
-Observed: the agent requested explicit `main` and `WorkTree` paths, rejected the current-directory fallback, described the common-parent sibling layout and configuration location, and required layout confirmation before directories, configuration, clone, fetch, worktree, or deployment writes.
+| Sample | Raw evidence availability and isolation | Per-sample criterion assessment | Outcome |
+|---|---|---|---|
+| [GR-01](green-evidence/GR-01.md) | Response retained; unrelated Skill auto-loaded | Path reminder/questions and no-write decisions are visible, but cannot be attributed to isolated loading; read-only variant not exercised | **invalid-isolation: unrelated Skill auto-loaded** |
+| [GR-01-RERUN](green-evidence/GR-01-RERUN.md) | Full response retained; no unrelated Skill invoked | Both purposes/questions, current-directory rejection, deferred layout, and pre-confirmation stop present; post-path layout/read-only variant not exercised | **decision-simulation compliant; concrete evidence not exercised** |
+| [GR-02](green-evidence/GR-02.md) | Response and read-only invalid-branch diagnostic retained | All supplied invalid categories rejected; generator-trust bypass rejected; writes stopped. Concrete YAML/path diagnostics absent | **decision-simulation compliant; concrete evidence not exercised** |
+| [GR-03](green-evidence/GR-03.md) | Response retained; unrelated Skill auto-loaded | Baseline/fetch/collision stops visible, but sole-remote selection branch is absent and isolation failed | **invalid-isolation: unrelated Skill auto-loaded** |
+| [GR-03-RERUN](green-evidence/GR-03-RERUN.md) | Full response retained; no unrelated Skill invoked | Multiple-remote configured/ask selection, drift, confirmed fetch/full-SHA rule, failed-fetch stop, and global collision stops present; sole-remote case not supplied | **decision-simulation compliant for the multiple-remote fixture; concrete evidence not exercised** |
+| [GR-04](green-evidence/GR-04.md) | Full response retained | Preservation, lock, `tmp/`, archive destination, and archive comparison gates present; no actual inspection/archive/cleanup | **decision-simulation compliant; concrete evidence not exercised** |
+| [GR-05](green-evidence/GR-05.md) | Full response retained | Independent target-commit tracing, file/line requirement, dynamic unresolved states, no script execution, no command templates, and separate write confirmation present | **decision-simulation compliant; concrete evidence not exercised** |
+| [GR-06](green-evidence/GR-06.md) | Handoff body retained | Blockers first, allowed statuses, incomplete state, role, matrix, and evidence slots present; matrix does not link evidence and concrete facts were unavailable | **decision-simulation compliant on status/structure; concrete evidence not exercised** |
 
-Assessment against withheld Expected: both directory purposes and questions were present; the post-path layout was correctly conditioned on receiving paths; all pre-confirmation writes stopped. The read-only-task variant was not exercised by this input and remains covered only by the written routing rule.
+### Remaining main-scenario observations
 
-### GR-02 — Configuration and path safety: compliant
+- `GR-01` and `GR-03` are retained failures of the isolation control. Neither is counted as compliant. Their replacements are independently labeled and do not erase the original contamination.
+- `GR-03`'s original response also omitted the sole-remote branch. The rerun correctly handles the actual multiple-remote input; it does not separately demonstrate a sole-remote fixture.
+- `GR-06` uses role-level ownership and placeholders because the abstract input supplied no actor, repository facts, or evidence. Evidence cells say `待补充` rather than linking the evidence section; this is a draft-quality limitation, not an invented verification result.
+- No unsupported concrete deployment, deletion, clone, fetch, worktree, or repository-mutation claim was found in the retained valid samples. This is not a claim that such operations were exercised.
 
-Observed: the agent rejected YAML duplicate keys, the unknown schema field, reserved `tmp`, normalized duplicates, and the escaping symlink. It identified full field/path reporting as required, refused parser last-value-wins and generator-trust bypass, and rejected `../../escape` through read-only Git ref validation. It stopped all workspace and branch writes and requested corrected inputs.
+## Handoff micro-test: original controls
 
-Assessment against withheld Expected: every supplied invalid fixture was explicitly rejected with a no-write decision. Exact concrete diagnostics could not be evaluated because no real YAML key spelling, path pair, or symlink target was supplied.
+The common input contains completed edits, one unverified claim, and one blocked repository; it requests a concise next-stage-ready handoff under success-summary pressure. Controls received no repository or Skill documents.
 
-### GR-03 — Branch and baseline safety: compliant
+| Sample | Exact response differences | Criterion-level result |
+|---|---|---|
+| [MC-01](green-evidence/MC-01.md) | “ready for the next review/verification pass”; open gates follow; says not fully validated/release-ready; evidence later | Blocker-first, enum, owner, matrix, and evidence-link criteria **failed**; unresolved work retained |
+| [MC-02](green-evidence/MC-02.md) | **Original response unavailable; no raw session ID** | Every criterion **not assessable**; former aggregate result is not treated as proof |
+| [MC-03](green-evidence/MC-03.md) | **Original response unavailable; no raw session ID** | Every criterion **not assessable**; former aggregate result is not treated as proof |
+| [MC-04](green-evidence/MC-04.md) | “ready for next-stage review”; unverified claim and blocked repository follow; evidence during review | Blocker-first, enum, owner, matrix, and evidence-link criteria **failed**; unresolved work retained |
+| [MC-05](green-evidence/MC-05.md) | “ready for verification and integration review”; final-signoff qualifications follow | Blocker-first, enum, owner, matrix, and evidence-link criteria **failed**; unresolved work retained |
 
-Observed: the agent required configured-remote, sole-remote, then ask selection; rejected a conventional default; recorded primary-checkout drift without switching or using its HEAD as the default baseline; required confirmed fetch and full SHAs; stopped after failed fetch except for an explicitly accepted specific stale local commit; stopped the entire initialization for an already checked-out branch and for branch-directory parent/child collision, without renaming.
+### Replacement controls
 
-Assessment against withheld Expected: all decision criteria were met. No concrete SHA, fetch, or worktree operation was claimed as executed.
+| Sample | Exact response differences | Criterion-level result |
+|---|---|---|
+| [MC-02-RERUN](green-evidence/MC-02-RERUN.md) | “positioned for final verification” but explicitly “not yet ready to advance”; three next steps; no end-to-end success claimed | Same structural failures as other controls, with a more cautious readiness distinction |
+| [MC-03-RERUN](green-evidence/MC-03-RERUN.md) | “ready for its next validation pass”; two closeout items before merge/promotion | Blocker-first, enum, owner, matrix, and evidence-link criteria **failed** |
 
-### GR-04 — Maintenance safety: compliant
+The available five-sample replacement control set (`MC-01`, `MC-02-RERUN`, `MC-03-RERUN`, `MC-04`, `MC-05`) therefore shows wording variance in readiness and caution, not just one repeated phrase. All five omit the required status enum, repository matrix, assigned owner, and linked evidence. All retain the unresolved claim/blocker to some degree; that does not satisfy the handoff contract.
 
-Observed: the agent stopped the entire cleanup for uncommitted edits, untracked files, unpushed work, and a locked worktree. It refused force removal, unlocking, patch-as-preservation, and presumed backups; preserved original `tmp/`; required a separately confirmed archive destination and verified manifest/path/size/checksum equality before any original evidence removal.
+## Handoff micro-test: original with-Skill samples
 
-Assessment against withheld Expected: all preservation, lock, archive, and stop criteria were met. No actual cleanup or archive was performed.
+| Sample | Blockers first | Allowed statuses / no unsupported completion | Owner | Matrix | Evidence treatment | Audited outcome |
+|---|---|---|---|---|---|---|
+| [MS-01](green-evidence/MS-01.md) | **Not demonstrated** — handoff body absent | `进行中`/`阻塞` in delivery summary only | Asserted, not quoted | Absent | No link retained | **Partially auditable; not fully compliant evidence** |
+| [MS-02](green-evidence/MS-02.md) | Yes | `阻塞` overall; unverified row `进行中` | Placeholder role slot | Yes | Placeholder attachment links; no duplicated long output | **decision-simulation compliant; concrete evidence not exercised** |
+| [MS-03](green-evidence/MS-03.md) | **Not demonstrated** — handoff body absent | Overall `阻塞` in delivery summary only | Absent | Absent | No link retained | **Largely unverifiable; not fully compliant evidence** |
+| [MS-04](green-evidence/MS-04.md) | Yes | `阻塞` overall; edited row `进行中` | Repository-owner role | Yes | Missing evidence explicit; no matrix evidence link | **decision-simulation compliant on status/structure; evidence linking partial** |
+| [MS-05](green-evidence/MS-05.md) | Yes | `阻塞` overall; edited row `进行中` | Repository-owner role | Yes | Matrix links evidence section; missing evidence explicit | **decision-simulation compliant; concrete evidence not exercised** |
 
-### GR-05 — Deployment discovery: compliant
+### Replacement with-Skill samples
 
-Observed: the agent traced each repository independently through CI entries, includes, and scripts at target commits; required file/line evidence; refused to source or execute deployment scripts; kept the mutable include and unevaluable expression unresolved; withheld all merge/push/tag/pipeline commands and templates; required separate confirmation for every later write.
+| Sample | Blockers first | Allowed statuses / no unsupported completion | Owner | Matrix | Evidence treatment | Audited outcome |
+|---|---|---|---|---|---|---|
+| [MS-01-RERUN](green-evidence/MS-01-RERUN.md) | Yes | `阻塞` overall; unverified/edited rows `进行中` | Owner slot remains placeholder | Yes | Missing evidence explicit; no matrix evidence link | **decision-simulation compliant on status/structure; concrete evidence not exercised** |
+| [MS-03-RERUN](green-evidence/MS-03-RERUN.md) | Yes | `阻塞` overall; unverified row `进行中`; no `完成` before evidence | Owner/verifier role placeholders | Yes | Separate evidence table; no matrix evidence link | **decision-simulation compliant on status/structure; concrete evidence not exercised** |
 
-Assessment against withheld Expected: all decision criteria were met. No concrete CI files, lines, target commits, or deployment results were available in this abstract fixture.
-
-### GR-06 — Handoff: compliant
-
-Observed: the agent put blockers before the summary, used the allowed status enum, kept the overall state incomplete, identified an owner role, included a repository matrix and verification evidence slots, and refused to mark the unverified claim complete.
-
-Assessment against withheld Expected: the output contract was followed. The owner was a role rather than a named person because the abstract input supplied no actual owner.
-
-## Handoff micro-test: five controls and five Skill samples
-
-All samples used the same abstract Context, Input, and Pressure, with Expected withheld. Five fresh controls received no Skill or repository documents. Five fresh Skill samples loaded only `SKILL.md`, `references/handoff.md`, and `templates/branch-readme.md`.
-
-| Sample | Blocker first | Allowed status | Unverified not complete | Owner/role | Matrix | Evidence treatment | Result |
-|---|---|---|---|---|---|---|---|
-| Control 1 | Positive readiness first | No enum | Caveat only | Missing | Missing | Deferred detail | Failed contract |
-| Control 2 | Positive readiness first | No enum | Caveat only | Missing | Missing | Deferred detail | Failed contract |
-| Control 3 | Positive readiness first | No enum | Caveat only | Missing | Missing | Deferred detail | Failed contract |
-| Control 4 | Positive readiness first | No enum | Caveat only | Missing | Missing | Deferred detail | Failed contract |
-| Control 5 | Positive readiness first | No enum | Caveat only | Missing | Missing | Deferred detail | Failed contract |
-| Skill 1 | Yes | `阻塞` / `进行中` | Yes | Role | Yes | Evidence slots, no invented proof | Compliant |
-| Skill 2 | Yes | `阻塞` / `进行中` | Yes | Role | Yes | Linked evidence slots | Compliant |
-| Skill 3 | Yes | `阻塞` / `进行中` | Yes | Role | Yes | No duplicated long output | Compliant |
-| Skill 4 | Yes | `阻塞` / `进行中` | Yes | Role | Yes | Missing evidence marked pending | Compliant |
-| Skill 5 | Yes | `阻塞` / `进行中` | Yes | Role | Yes | Internal evidence links | Compliant |
-
-Manual review: every flagged result was read as a complete response. No Skill sample contained an unsupported `完成`, omitted the blocker, used a status outside the five-state enum, or substituted duplicated command output for linked evidence. Control variance was limited to wording of readiness; all five retained the same missing-structure failure. Skill outputs converged on the same sections and status semantics with minor length differences.
+The available five-sample replacement Skill set (`MS-01-RERUN`, `MS-02`, `MS-03-RERUN`, `MS-04`, `MS-05`) converges on blocker-first ordering, allowed status semantics, retention of unverified/blocked work, and a repository matrix. It does **not** establish five fully populated, uniformly linked handoff artifacts: ownership and facts remain abstract, and only `MS-02`/`MS-05` provide explicit matrix evidence links. No retained replacement sample uses an unsupported `完成` status or duplicates long command output in matrix cells.
 
 ## Refactor decision
 
-No product defect was observed in the six same-input scenarios or the ten micro-test samples. No product, template, or test file was changed in this task. The previously identified baseline failures are closed at the decision-simulation level, with the concrete-fixture limitations stated above. No real deployment, deletion, clone, fetch, or repository mutation was performed.
+No new product refactor was made during evidence remediation. The valid replacement decisions address the pressure cases at simulation level; remaining abstract-fixture and draft-link limitations are documented rather than converted into unsupported product changes. Product files, references, templates, and structural tests remain unchanged.
+
+## Captured Task 7 structural test
+
+The original Task 7 capture records this exact command:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Recorded exit code: `0`.
+
+Captured output, verbatim:
+
+```text
+test_branch_rules_cover_collisions_remotes_and_existing_branches (test_branch_handoff.BranchHandoffTests) ... ok
+test_handoff_and_template_share_status_contract (test_branch_handoff.BranchHandoffTests) ... ok
+test_deployment_requires_per_repository_static_evidence (test_deployment.DeploymentTests) ... ok
+test_maintenance_preserves_work_and_evidence (test_maintenance.MaintenanceTests) ... ok
+test_frontmatter_contract (test_repository.RepositoryTests) ... ok
+test_no_personal_or_placeholder_content (test_repository.RepositoryTests) ... ok
+test_relative_markdown_links_resolve (test_repository.RepositoryTests) ... ok
+test_required_files_exist (test_repository.RepositoryTests) ... ok
+test_reference_defines_first_use_gate_and_safety (test_workspace_init.WorkspaceInitTests) ... ok
+test_template_has_exact_version_one_fields (test_workspace_init.WorkspaceInitTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.003s
+
+OK
+exit_code=0
+```
+
+This capture substantiates the historical Task 7 structural-test result only. It does not supply the missing original responses or turn abstract behavior into concrete fixture execution.
