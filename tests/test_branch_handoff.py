@@ -56,7 +56,7 @@ class BranchHandoffTests(unittest.TestCase):
             "斜杠", "嵌套目录", "分组目录",
             "fix/upload-retry-20261102",
             "WorkTree/fix/upload-retry-20261102",
-            "前缀重叠",
+            "前缀重叠", "根级布局", "已登记仓库路径",
         ]:
             self.assertIn(token, text)
         skill = read_product(self, "SKILL.md")

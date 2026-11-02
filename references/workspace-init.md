@@ -10,30 +10,49 @@
 
 第一次使用且没有可用配置时，必须先向用户展示：
 
-> 第一次使用 Agent 多仓库 Worktree 开发规范，请先指定一个目录作为 `main` 基座目录，并指定或确认一个 `WorkTree` 基座目录。`main` 目录直接存放所有项目的主分支 checkout（`main`、`master` 等）；`WorkTree` 目录存放所有分支开发目录。两个目录必须同级，后续开发 worktree 都以 `main` 中的主 checkout 为基座创建。
+> 第一次使用 Agent 多仓库 Worktree 开发规范，请先指定一个目录作为 `main` 基座目录，并指定或确认一个 worktree 基座目录。`main` 目录直接存放所有项目的主分支 checkout；默认使用与 `main` 同级的 `WorkTree` 目录。也允许显式选择 `worktreeDir` 为 `.` 的根级布局，让分支 worktree 目录与 `main` 并列放在工作区根目录。后续开发 worktree 都以 `main` 中的主 checkout 为基座创建。
 
-展示后等待用户提供或明确确认两个基座目录。任一目录未提供或未确认时停止；不得用当前目录、技能仓库目录或内置路径代替。`main` 基座目录不能直接指向某个项目仓库，两个基座目录不得相同或互相嵌套。
+展示后等待用户提供或明确确认两个基座目录。任一目录未提供或未确认时停止；不得用当前目录、技能仓库目录或内置路径代替。`main` 基座目录不能直接指向某个项目仓库，两个基座目录不得相同。默认布局要求二者同级且互不嵌套；根级布局是显式例外，`worktreeDir` 必须为 `.`，`mainDir` 是工作区直接子目录，分支路径必须避开 `mainDir` 和所有已登记仓库。
 
 用户确认两个路径后，展示第 3 节的推导结构并请求确认。用户未确认推导结构前停止，不创建目录或配置。
 
-## 3. 同级目录结构
+## 3. 两种目录布局
 
-两个基座目录必须同级。`<workspace>` 是它们的共同父目录，`mainDir` 与 `worktreeDir` 分别是用户确认路径的最后一级目录名。两个路径不在同一父目录时，要求重新选择。
+默认使用同级布局：`<workspace>` 是 `mainDir` 与 `worktreeDir` 的共同父目录，二者的路径最后一级目录名不同，且互不嵌套。
 
 ```text
-<workspace>/                      # 两个基座目录的共同父目录
+<workspace>/
 ├── .branch-worktree/
 │   └── config.yaml
 ├── <mainDir>/                    # 用户指定的 main 基座目录
-│   ├── project-a/                # 项目主分支 checkout
+│   ├── project-a/
 │   └── project-b/
-└── <worktreeDir>/                # 用户指定或确认的 WorkTree 基座目录
-    └── <branch-name>/            # 一次开发的分支目录
-        ├── project-a/
-        └── tmp/
+└── <worktreeDir>/                # 默认 WorkTree 基座目录
+    └── <branch-group>/
+        └── <branch-leaf>/
+            ├── project-a/
+            └── tmp/
 ```
 
-配置固定为 `<workspace>/.branch-worktree/config.yaml`。工作区根目录由配置位置推导，不保存本机绝对路径。分支开发目录统一位于 `WorkTree/<branch>/`，`WorkTree/<branch>/tmp` 保存交接记录。
+也支持显式选择**根级布局**：配置 `worktreeDir: .`，不创建额外的 WorkTree 包装目录，分支 worktree 与 `mainDir` 并列放在工作区根目录。该模式必须由用户明确选择，适用于“主 checkout 和分支 worktree 一直混放在同一级”的既有工作区。
+
+```text
+<workspace>/                      # 工作区根目录，也是 worktreeDir
+├── .branch-worktree/
+│   └── config.yaml
+├── <mainDir>/                    # main 基座，必须是工作区的直接子目录
+│   ├── project-a/
+│   └── project-b/
+├── fix/
+│   └── upload-retry-20261102/    # 分支目录与 mainDir 并列
+│       ├── project-a/
+│       └── tmp/
+└── feature/
+    └── order-export-20261102/
+        └── project-b/
+```
+
+配置固定为 `<workspace>/.branch-worktree/config.yaml`。工作区根目录由配置位置推导，不保存本机绝对路径。分支目录由完整分支路径决定：默认布局位于 `<worktreeDir>/<branch path>/`，根级布局位于 `<workspace>/<branch path>/`。`tmp/` 始终位于完整分支目录下。根级布局中，分支路径不得等于、位于或包含 `mainDir`，也不得与任何已登记仓库路径重叠。
 
 ## 4. 配置发现与物理路径校验
 
@@ -43,7 +62,7 @@
 2. 否则从当前目录向上查找 `.branch-worktree/config.yaml`；存在多个候选时使用离当前目录最近者。
 3. 未找到配置时进入第 2 节，不使用个人默认路径。解析失败时停止写操作并报告具体字段，不回退到内置项目默认值。
 
-将两个基座目录解析为物理路径，验证它们具有共同父目录、互不嵌套，且解析后仍位于工作区内。`mainDir`、`worktreeDir` 必须是工作区内的非空单级相对目录，不得为绝对路径或包含 `..`，不得为 `.`、`.git` 或 `.branch-worktree`，且二者必须不同。
+将两个基座目录解析为物理路径。默认布局要求二者具有共同父目录且互不嵌套；根级布局只允许 `worktreeDir` 为 `.`，要求 `mainDir` 是工作区直接子目录，且分支路径不与 `mainDir` 或任何已登记仓库重叠。`mainDir` 必须是非空单级相对目录，不得为绝对路径、包含 `..` 或等于 `.`；`worktreeDir` 只能是单级相对目录或 `.`，不得为绝对路径、包含 `..`、`.git` 或 `.branch-worktree`。两个目录解析后必须仍位于工作区内且互不相同。
 
 目录不存在时，先解析并校验最近现有祖先和待创建尾路径；确认结构后创建目录，再重新解析物理路径。发现路径逃逸、碰撞、基座目录自身为 Git checkout 根或 Git 不可用时停止。首版不覆盖已有路径。
 

@@ -1,6 +1,9 @@
 version: 1
 mainDir: main
 worktreeDir: WorkTree
+# Root-level layout alternative: set worktreeDir to "." so branch directories
+# sit beside mainDir directly under the workspace root.
+# worktreeDir: .
 
 repositories:
   - name: example-api

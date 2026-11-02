@@ -50,6 +50,8 @@ Every `/` in a branch name becomes a nested directory level. For example, `fix/u
 
 Each development effort uses one shared branch name and one branch directory. Primary checkouts remain under `<mainDir>`; development worktrees and handoff records remain under `<worktreeDir>`.
 
+If an existing workspace keeps branch directories beside `mainDir` instead of inside a separate `WorkTree` directory, set `worktreeDir: .` in the configuration. This root-level layout is explicit: branch paths start at the workspace root and must not collide with `mainDir` or any registered repository.
+
 ## Documentation
 
 | Document | Purpose |

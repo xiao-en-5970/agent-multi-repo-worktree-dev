@@ -37,6 +37,19 @@ class WorkspaceInitTests(unittest.TestCase):
             scenario,
         )
 
+    def test_root_level_worktree_layout_is_explicitly_supported(self):
+        text = read_product(self, "references/workspace-init.md")
+        for token in [
+            "根级布局", "worktreeDir: .", "并列", "显式选择",
+            "已登记仓库", "不得为绝对路径",
+        ]:
+            self.assertIn(token, text)
+        template = read_product(self, "templates/workspace-config.yaml")
+        self.assertIn("# worktreeDir: .", template)
+        skill = read_product(self, "SKILL.md")
+        self.assertIn("root-level layout", skill)
+        self.assertIn("branch paths must avoid `mainDir`", skill)
+
     def test_template_has_exact_version_one_fields(self):
         text = read_product(self, "templates/workspace-config.yaml")
         for token in [
