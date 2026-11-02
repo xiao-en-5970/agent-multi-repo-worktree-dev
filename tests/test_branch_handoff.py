@@ -17,6 +17,10 @@ class BranchHandoffTests(unittest.TestCase):
             "本地分支", "所选 remote", "父级或子级", "tmp",
         ]:
             self.assertIn(token, text)
+        self.assertIn(
+            "分支已在其他 worktree 检出：报冲突并停止分支初始化，禁止后续任何写入",
+            text,
+        )
 
     def test_handoff_and_template_share_status_contract(self):
         reference = read_product(self, "references/handoff.md")
