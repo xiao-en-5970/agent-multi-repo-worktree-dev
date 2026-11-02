@@ -258,6 +258,10 @@ footer p{margin:4px 0;color:var(--muted)}
   </div>
 
   <div class="note">
+    <p><strong>根级布局：</strong>如果分支目录一直和 <code>main</code> 并列，把 <code>worktreeDir</code> 配成 <code>.</code>，分支直接放在工作区下，例如 <code>fix/upload-retry-20261102/</code>，不额外建 <code>WorkTree</code> 层；分支路径必须避开 <code>main</code> 和已登记仓库。</p>
+  </div>
+
+  <div class="note">
     <p><strong>目录名以配置为准。</strong><code>main/</code> 和 <code>WorkTree/</code> 是本文示例；实际名称来自用户首次确认的 <code>mainDir</code> 与 <code>worktreeDir</code>。两者同级，不能互相嵌套。</p>
   </div>
 

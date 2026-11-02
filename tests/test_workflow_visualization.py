@@ -40,7 +40,7 @@ class WorkflowVisualizationTests(unittest.TestCase):
         for phrase in [
             "main/", "WorkTree/", "tmp/",
             "本次需求的产物", "tmp/README.md", "把每个改动放大",
-            "fix/upload-retry-20261102", "原样尊重",
+            "fix/upload-retry-20261102", "原样尊重", "worktreeDir", "根级布局",
         ]:
             self.assertIn(phrase, text)
 
