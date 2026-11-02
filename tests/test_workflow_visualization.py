@@ -4,6 +4,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "docs/visualizations/standard-workflow.html"
+INDEX = ROOT / "docs/index.html"
 
 
 class WorkflowPageParser(HTMLParser):
@@ -55,6 +56,14 @@ class WorkflowVisualizationTests(unittest.TestCase):
         self.assertEqual(self.parser.external_references, [])
         self.assertIn("motion-toggle", self.parser.button_ids)
         self.assertIn("prefers-reduced-motion", PAGE.read_text())
+
+    def test_docs_root_redirects_to_workflow_page(self):
+        self.assertTrue(INDEX.is_file(), "missing docs/index.html")
+        index = INDEX.read_text()
+        self.assertIn('http-equiv="refresh"', index)
+        self.assertIn('content="0; url=visualizations/standard-workflow.html"', index)
+        self.assertIn('href="visualizations/standard-workflow.html"', index)
+        self.assertTrue((INDEX.parent / "visualizations/standard-workflow.html").is_file())
 
 
 if __name__ == "__main__":
