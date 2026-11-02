@@ -25,6 +25,8 @@ One development effort uses one shared branch name and one directory: `<workspac
 
 Preserve user-supplied branch names verbatim after Git reference and path-safety checks. If the user does not name the branch, propose the default `feature/<slug>-YYYYMMDD`, `fix/<slug>-YYYYMMDD`, or `hotfix/<slug>-YYYYMMDD` form with the current date and confirm it. Never append a date, replace a prefix, or rewrite an existing branch without explicit user direction.
 
+When branch initialization reads primary checkouts, fetch the selected remotes and fast-forward only clean checkouts already on their default branch. Skip dirty, divergent, or non-default-branch checkouts, report the skipped sync, and never switch, stash, reset, or overwrite local work; baselines still come from the confirmed remote commit.
+
 First-use setup requires only the two base directories as initial input; repository registration is derived from the confirmed main base and configuration, with ambiguity resolved by asking. Branch initialization accepts a requirement source and shared branch name; repositories may be named explicitly or derived from the requirement, with the candidate set confirmed before writes. A requested frontend/backend integration creates all confirmed repositories' worktrees under the same branch directory in one initialization pass. Dependency installation, service startup, and deployment remain separate confirmed actions.
 
 Do not develop from a confirmed deployment-environment branch or reverse-merge environment branches. Establish non-default baselines from project instructions or CI/CD evidence rather than branch names.

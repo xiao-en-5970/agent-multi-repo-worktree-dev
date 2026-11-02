@@ -63,6 +63,18 @@ class BranchHandoffTests(unittest.TestCase):
         self.assertIn("user-supplied", skill.lower())
         self.assertIn("nested", skill.lower())
 
+    def test_branch_init_fast_forwards_clean_primary_checkouts_only(self):
+        text = read_product(self, "references/branch-init.md")
+        for token in [
+            "同步主 checkout", "fast-forward", "git merge --ff-only",
+            "干净且位于默认分支", "同步跳过", "不 stash", "不 reset",
+            "不 rebase", "不覆盖本地改动", "基线仍取所选 remote",
+        ]:
+            self.assertIn(token, text)
+        skill = read_product(self, "SKILL.md")
+        self.assertIn("fast-forward", skill)
+        self.assertIn("clean", skill)
+
     def test_readme_separates_first_use_from_ongoing_requirements(self):
         readme = read_product(self, "README.md")
         for token in [
