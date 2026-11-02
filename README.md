@@ -19,11 +19,17 @@ This step only establishes the workspace configuration and the two base director
 For each new requirement, provide the requirement source, a shared branch name, and optionally the repositories:
 
 > Requirement: <document link or pasted brief>
-> Branch: fix-upload-retry
+> Branch: fix/upload-retry-20261102
 > Repositories: repo-a, repo-b (optional; infer them from the requirement if omitted)
 > Do a read-only preflight, list the paths you will create or reuse, then create all frontend/backend worktrees needed for joint debugging in one pass.
 
 When the repository list is omitted, the agent derives candidate repositories from the requirement, shows the candidates and rationale, and waits for confirmation before writing. It does not clone or register unlisted repositories by itself. Creating the worktrees prepares the joint-debugging workspace; dependency installation, service startup, and deployment remain separately confirmed actions.
+
+## Branch Naming and Directories
+
+User-supplied branch names are preserved verbatim after Git reference and path-safety checks. When the user does not choose a name, the default proposal is `feature/<slug>-YYYYMMDD`, `fix/<slug>-YYYYMMDD`, or `hotfix/<slug>-YYYYMMDD` using the current date; the proposal is confirmed before use.
+
+Every `/` in a branch name becomes a nested directory level. For example, `fix/upload-retry-20261102` maps to `<worktreeDir>/fix/upload-retry-20261102/`; `feature/` and `fix/` are grouping directories that may contain multiple branch directories.
 
 ## Directory Model
 
@@ -35,9 +41,11 @@ When the repository list is omitted, the agent derives candidate repositories fr
 │   ├── project-a/
 │   └── project-b/
 └── <worktreeDir>/
-    └── <branch-name>/
-        ├── project-a/
-        └── tmp/
+    └── fix/
+        └── upload-retry-20261102/
+            ├── project-a/
+            ├── project-b/
+            └── tmp/
 ```
 
 Each development effort uses one shared branch name and one branch directory. Primary checkouts remain under `<mainDir>`; development worktrees and handoff records remain under `<worktreeDir>`.

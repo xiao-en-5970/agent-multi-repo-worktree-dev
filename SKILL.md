@@ -21,7 +21,9 @@ Load the reference matching the request; keep its complete procedure in that fil
 
 Discover configuration from an explicitly supplied workspace or file first; otherwise search upward for the nearest `.branch-worktree/config.yaml`. If none exists, use workspace initialization and obtain both base-directory choices before writing. Never substitute a personal or built-in path.
 
-One development effort uses one shared branch name and one directory: `<workspace>/<worktreeDir>/<branch>/`. The `mainDir` base contains each repository's primary checkout; development occurs in isolated worktrees under `worktreeDir`. Record primary-checkout drift without switching or modifying it, and derive baselines according to branch initialization.
+One development effort uses one shared branch name and one directory: `<workspace>/<worktreeDir>/<branch path>/`, where every `/` in the branch name becomes a nested directory level. The `mainDir` base contains each repository's primary checkout; development occurs in isolated worktrees under `worktreeDir`. Record primary-checkout drift without switching or modifying it, and derive baselines according to branch initialization.
+
+Preserve user-supplied branch names verbatim after Git reference and path-safety checks. If the user does not name the branch, propose the default `feature/<slug>-YYYYMMDD`, `fix/<slug>-YYYYMMDD`, or `hotfix/<slug>-YYYYMMDD` form with the current date and confirm it. Never append a date, replace a prefix, or rewrite an existing branch without explicit user direction.
 
 First-use setup requires only the two base directories as initial input; repository registration is derived from the confirmed main base and configuration, with ambiguity resolved by asking. Branch initialization accepts a requirement source and shared branch name; repositories may be named explicitly or derived from the requirement, with the candidate set confirmed before writes. A requested frontend/backend integration creates all confirmed repositories' worktrees under the same branch directory in one initialization pass. Dependency installation, service startup, and deployment remain separate confirmed actions.
 

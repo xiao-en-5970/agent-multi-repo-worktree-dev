@@ -239,25 +239,30 @@ footer p{margin:4px 0;color:var(--muted)}
 │   ├── repo-a/
 │   └── repo-b/
 ├── WorkTree/
-│   └── feature-a/                 <span class="comment"># 一次需求 = 一个分支名 = 一个目录</span>
-│       ├── repo-a/                <span class="comment"># 本次涉及仓库的 worktree</span>
-│       ├── repo-b/
-│       └── tmp/                   <span class="comment"># 本次需求的产物，位于所有仓库 worktree 之外</span>
-│           ├── README.md          <span class="comment"># 交接总览 + 仓库矩阵 + 变更日志</span>
-│           ├── change-01.patch
-│           ├── verify-01.log
-│           ├── decisions.md
-│           └── sql/
+│   └── fix/
+│       └── upload-retry-20261102/  <span class="comment"># 分支名中的 / 逐级变成目录</span>
+│           ├── repo-a/             <span class="comment"># 本次涉及仓库的 worktree</span>
+│           ├── repo-b/
+│           └── tmp/                <span class="comment"># 本次需求的产物，位于所有仓库 worktree 之外</span>
+│               ├── README.md       <span class="comment"># 交接总览 + 仓库矩阵 + 变更日志</span>
+│               ├── change-01.patch
+│               ├── verify-01.log
+│               ├── decisions.md
+│               └── sql/
 └── .branch-worktree/
-    └── config.yaml                <span class="comment"># 工作区配置，不写死个人绝对路径</span></code></pre>
+    └── config.yaml                 <span class="comment"># 工作区配置，不写死个人绝对路径</span></code></pre>
   <p class="scroll-hint">窄屏可左右滑动，查看完整目录树和表格。</p>
+
+  <div class="note">
+    <p><strong>分支名和目录一一对应。</strong><code>fix/upload-retry-20261102</code> 映射为 <code>WorkTree/fix/upload-retry-20261102/</code>。用户自己指定的分支名原样尊重；只有用户没指定时，才默认建议 <code>feature|fix|hotfix/&lt;slug&gt;-YYYYMMDD</code>。</p>
+  </div>
 
   <div class="note">
     <p><strong>目录名以配置为准。</strong><code>main/</code> 和 <code>WorkTree/</code> 是本文示例；实际名称来自用户首次确认的 <code>mainDir</code> 与 <code>worktreeDir</code>。两者同级，不能互相嵌套。</p>
   </div>
 
   <div class="note warning">
-    <p><strong>tmp 不是 IDE 或构建临时目录。</strong>它位于 <code>WorkTree/&lt;branch&gt;/tmp</code>，在所有仓库 worktree 之外，因此不被任何仓库 Git 跟踪；也不是仓库内部被 <code>.gitignore</code> 忽略的 <code>tmp/</code>。另一个需求有自己的 <code>tmp/</code>，不要互相复制验证结果。</p>
+    <p><strong>tmp 不是 IDE 或构建临时目录。</strong>它位于 <code>WorkTree/&lt;branch path&gt;/tmp</code>，在所有仓库 worktree 之外，因此不被任何仓库 Git 跟踪；也不是仓库内部被 <code>.gitignore</code> 忽略的 <code>tmp/</code>。另一个需求有自己的 <code>tmp/</code>，不要互相复制验证结果。</p>
   </div>
 </section>
 

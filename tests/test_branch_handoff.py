@@ -48,12 +48,28 @@ class BranchHandoffTests(unittest.TestCase):
         ]:
             self.assertIn(token, text)
 
+    def test_branch_names_respect_custom_names_and_use_safe_nested_directories(self):
+        text = read_product(self, "references/branch-init.md")
+        for token in [
+            "用户提供的分支名", "原样尊重", "不追加日期", "不替换前缀",
+            "默认命名", "未提供分支名", "真实日历日期",
+            "斜杠", "嵌套目录", "分组目录",
+            "fix/upload-retry-20261102",
+            "WorkTree/fix/upload-retry-20261102",
+            "前缀重叠",
+        ]:
+            self.assertIn(token, text)
+        skill = read_product(self, "SKILL.md")
+        self.assertIn("user-supplied", skill.lower())
+        self.assertIn("nested", skill.lower())
+
     def test_readme_separates_first_use_from_ongoing_requirements(self):
         readme = read_product(self, "README.md")
         for token in [
             "First Use", "Ongoing Use", "Do not create branch worktrees in this step",
             "optional", "infer them from the requirement", "frontend/backend",
-            "separately confirmed actions",
+            "separately confirmed actions", "fix/upload-retry-20261102",
+            "User-supplied branch names are preserved",
         ]:
             self.assertIn(token, readme)
         skill = read_product(self, "SKILL.md")
