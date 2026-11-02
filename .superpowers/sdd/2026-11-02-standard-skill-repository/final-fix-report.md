@@ -49,7 +49,7 @@ Diff and public-content checks:
 
 ## Commit
 
-Pending at report creation; the final commit SHA will be verified after committing as `fix: harden metadata and branch source preflight`.
+`70edbd8bddd8dea24bb5f2019045c6d486b23d40` (`fix: harden metadata and branch source preflight`). This report-SHA line is tracked in a separate metadata-only follow-up so the report does not contain a placeholder.
 
 ## Concerns and limits
 
