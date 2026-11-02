@@ -1,0 +1,10 @@
+version: 1
+mainDir: main
+worktreeDir: WorkTree
+
+repositories:
+  - name: example-api
+    path: api
+    url: git@example.com:team/example-api.git
+    remote: origin
+    defaultBranch: main
