@@ -22,6 +22,23 @@ class BranchHandoffTests(unittest.TestCase):
             text,
         )
 
+    def test_all_branch_sources_and_targets_are_resolved_before_any_write(self):
+        text = read_product(self, "references/branch-init.md")
+        for token in [
+            "在任何 `tmp/`、worktree 或分支写入之前",
+            "每个仓库的本地分支和所选 remote 的同名分支",
+            "现有目标及占用状态",
+            "仅当本地与所选 remote 的 ref 解析为完全相同的完整 SHA 时才去重",
+            "分歧、多个来源或目标歧义",
+            "全局停止整个初始化",
+            "保持既有来源优先级",
+        ]:
+            self.assertIn(token, text)
+
+        preflight = text.index("在任何 `tmp/`、worktree 或分支写入之前")
+        write = text.index("**校验通过后写入。**")
+        self.assertLess(preflight, write)
+
     def test_handoff_and_template_share_status_contract(self):
         reference = read_product(self, "references/handoff.md")
         template = read_product(self, "templates/branch-readme.md")

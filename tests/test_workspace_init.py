@@ -18,6 +18,25 @@ class WorkspaceInitTests(unittest.TestCase):
         ]:
             self.assertIn(token, text)
 
+    def test_metadata_targets_are_contained_and_rechecked_before_every_write(self):
+        text = read_product(self, "references/workspace-init.md")
+        for token in [
+            "`.branch-worktree/` 和 `config.yaml`",
+            "最近现有祖先",
+            "解析后的物理路径必须位于工作区内",
+            "符号链接或文件类型碰撞",
+            "每次创建或更新前重新解析并复核",
+        ]:
+            self.assertIn(token, text)
+
+        scenario = read_product(self, "tests/scenarios/config-path-safety.md")
+        self.assertIn(
+            "stop at `<workspace>/.branch-worktree/config.yaml` before every write; "
+            "do not create, modify, or delete the metadata directory, configuration, "
+            "base directories, repositories, or external symlink target.",
+            scenario,
+        )
+
     def test_template_has_exact_version_one_fields(self):
         text = read_product(self, "templates/workspace-config.yaml")
         for token in [
