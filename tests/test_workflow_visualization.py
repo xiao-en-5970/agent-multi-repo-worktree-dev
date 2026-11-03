@@ -38,9 +38,9 @@ class WorkflowVisualizationTests(unittest.TestCase):
         text, parser = self.read_page()
         self.assertEqual(parser.section_ids, {"directories", "tmp", "readme", "value"})
         for phrase in [
-            "main/", "WorkTree/", "tmp/",
+            "main/", "tmp/",
             "本次需求的产物", "tmp/README.md", "把每个改动放大",
-            "fix/upload-retry-20261102", "原样尊重", "worktreeDir", "根级布局",
+            "fix/upload-retry-20261102", "原样尊重", "worktreeDir", "默认根级布局",
         ]:
             self.assertIn(phrase, text)
 

@@ -62,7 +62,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   await call("Page.navigate", { url: pageUrl });
   await delay(350);
 
-  let value = await evaluate(`document.title.includes('main · WorkTree · tmp')`);
+  let value = await evaluate(`document.title.includes('main · 分支 · tmp')`);
   assert(value, "page has the expected title");
   value = await evaluate(`Array.from(document.querySelectorAll('section')).map(section => section.id).join(',') === 'directories,tmp,readme,value'`);
   assert(value, "page has the four intended sections");
@@ -88,7 +88,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   await call("Page.navigate", { url: indexUrl });
   await delay(500);
-  value = await evaluate(`document.title.includes('main · WorkTree · tmp')`);
+  value = await evaluate(`document.title.includes('main · 分支 · tmp')`);
   assert(value, "docs root redirects to the workflow page");
 
   await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });

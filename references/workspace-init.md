@@ -10,34 +10,18 @@
 
 第一次使用且没有可用配置时，必须先向用户展示：
 
-> 第一次使用 Agent 多仓库 Worktree 开发规范，请先指定一个目录作为 `main` 基座目录，并指定或确认一个 worktree 基座目录。`main` 目录直接存放所有项目的主分支 checkout；默认使用与 `main` 同级的 `WorkTree` 目录。也允许显式选择 `worktreeDir` 为 `.` 的根级布局，让分支 worktree 目录与 `main` 并列放在工作区根目录。后续开发 worktree 都以 `main` 中的主 checkout 为基座创建。
+> 第一次使用 Agent 多仓库 Worktree 开发规范，请先指定一个目录作为 `main` 基座目录，并确认 worktree 目录布局。默认使用根级布局：`worktreeDir` 为 `.`，分支 worktree 目录直接与 `main` 并列放在工作区根目录。`main` 目录直接存放所有项目的主分支 checkout。后续开发 worktree 都以 `main` 中的主 checkout 为基座创建。
 
-展示后等待用户提供或明确确认两个基座目录。任一目录未提供或未确认时停止；不得用当前目录、技能仓库目录或内置路径代替。`main` 基座目录不能直接指向某个项目仓库，两个基座目录不得相同。默认布局要求二者同级且互不嵌套；根级布局是显式例外，`worktreeDir` 必须为 `.`，`mainDir` 是工作区直接子目录，分支路径必须避开 `mainDir` 和所有已登记仓库。
+展示后等待用户提供或明确确认 `main` 目录与 worktree 布局。任一项未提供或未确认时停止；不得用当前目录、技能仓库目录或内置路径代替。`main` 基座目录不能直接指向某个项目仓库。默认根级布局中，`mainDir` 是工作区直接子目录，分支路径必须避开 `mainDir` 和所有已登记仓库；如果用户明确选择独立 worktree 目录，则两个基座目录必须同级且互不嵌套。
 
-用户确认两个路径后，展示第 3 节的推导结构并请求确认。用户未确认推导结构前停止，不创建目录或配置。
+用户确认 `main` 路径和 worktree 布局后，展示第 3 节的推导结构并请求确认。用户未确认推导结构前停止，不创建目录或配置。
 
-## 3. 两种目录布局
+## 3. 目录布局
 
-默认使用同级布局：`<workspace>` 是 `mainDir` 与 `worktreeDir` 的共同父目录，二者的路径最后一级目录名不同，且互不嵌套。
-
-```text
-<workspace>/
-├── .branch-worktree/
-│   └── config.yaml
-├── <mainDir>/                    # 用户指定的 main 基座目录
-│   ├── project-a/
-│   └── project-b/
-└── <worktreeDir>/                # 默认 WorkTree 基座目录
-    └── <branch-group>/
-        └── <branch-leaf>/
-            ├── project-a/
-            └── tmp/
-```
-
-也支持显式选择**根级布局**：配置 `worktreeDir: .`，不创建额外的 WorkTree 包装目录，分支 worktree 与 `mainDir` 并列放在工作区根目录。该模式必须由用户明确选择，适用于“主 checkout 和分支 worktree 一直混放在同一级”的既有工作区。
+默认使用**根级布局**：配置 `worktreeDir: .`，不创建额外的 WorkTree 包装目录，分支 worktree 与 `mainDir` 并列放在工作区根目录。这是默认结构；只有用户明确选择独立 worktree 目录时，才使用同级的 `<worktreeDir>` 布局。
 
 ```text
-<workspace>/                      # 工作区根目录，也是 worktreeDir
+<workspace>/                      # 工作区根目录，也是默认 worktreeDir
 ├── .branch-worktree/
 │   └── config.yaml
 ├── <mainDir>/                    # main 基座，必须是工作区的直接子目录
@@ -52,7 +36,23 @@
         └── project-b/
 ```
 
-配置固定为 `<workspace>/.branch-worktree/config.yaml`。工作区根目录由配置位置推导，不保存本机绝对路径。分支目录由完整分支路径决定：默认布局位于 `<worktreeDir>/<branch path>/`，根级布局位于 `<workspace>/<branch path>/`。`tmp/` 始终位于完整分支目录下。根级布局中，分支路径不得等于、位于或包含 `mainDir`，也不得与任何已登记仓库路径重叠。
+可选使用独立 worktree 目录：<code>worktreeDir</code> 指向与 <code>mainDir</code> 同级的目录，<code>&lt;workspace&gt;</code> 是二者的共同父目录，两个路径互不嵌套。
+
+```text
+<workspace>/
+├── .branch-worktree/
+│   └── config.yaml
+├── <mainDir>/                    # 用户指定的 main 基座目录
+│   ├── project-a/
+│   └── project-b/
+└── <worktreeDir>/                # 可选的独立 worktree 基座目录
+    └── <branch-group>/
+        └── <branch-leaf>/
+            ├── project-a/
+            └── tmp/
+```
+
+配置固定为 `<workspace>/.branch-worktree/config.yaml`。工作区根目录由配置位置推导，不保存本机绝对路径。分支目录由完整分支路径决定：默认根级布局位于 `<workspace>/<branch path>/`，可选独立布局位于 `<worktreeDir>/<branch path>/`。<code>tmp/</code> 始终位于完整分支目录下。默认根级布局中，分支路径不得等于、位于或包含 `mainDir`，也不得与任何已登记仓库路径重叠。
 
 ## 4. 配置发现与物理路径校验
 
@@ -62,7 +62,7 @@
 2. 否则从当前目录向上查找 `.branch-worktree/config.yaml`；存在多个候选时使用离当前目录最近者。
 3. 未找到配置时进入第 2 节，不使用个人默认路径。解析失败时停止写操作并报告具体字段，不回退到内置项目默认值。
 
-将两个基座目录解析为物理路径。默认布局要求二者具有共同父目录且互不嵌套；根级布局只允许 `worktreeDir` 为 `.`，要求 `mainDir` 是工作区直接子目录，且分支路径不与 `mainDir` 或任何已登记仓库重叠。`mainDir` 必须是非空单级相对目录，不得为绝对路径、包含 `..` 或等于 `.`；`worktreeDir` 只能是单级相对目录或 `.`，不得为绝对路径、包含 `..`、`.git` 或 `.branch-worktree`。两个目录解析后必须仍位于工作区内且互不相同。
+将 `mainDir` 与 `worktreeDir` 解析为物理路径。默认根级布局要求 `worktreeDir` 为 `.`，`mainDir` 是工作区直接子目录，且分支路径不与 `mainDir` 或任何已登记仓库重叠；可选独立布局要求二者具有共同父目录且互不嵌套。`mainDir` 必须是非空单级相对目录，不得为绝对路径、包含 `..` 或等于 `.`；`worktreeDir` 只能是单级相对目录或 `.`，不得为绝对路径、包含 `..`、`.git` 或 `.branch-worktree`。两个目录解析后必须仍位于工作区内且互不相同。
 
 目录不存在时，先解析并校验最近现有祖先和待创建尾路径；确认结构后创建目录，再重新解析物理路径。发现路径逃逸、碰撞、基座目录自身为 Git checkout 根或 Git 不可用时停止。首版不覆盖已有路径。
 
@@ -102,7 +102,7 @@
 按以下顺序执行：
 
 1. 完成第 4、5 节校验，展示目标结构、登记仓库和将执行的写操作；clone 单独确认。
-2. 创建两个基座目录并重新解析物理路径，确认未逃逸或碰撞后，再创建 `.branch-worktree/` 并生成或更新配置。
+2. 创建 main 基座目录并重新解析物理路径，确认未逃逸或碰撞后，再创建 `.branch-worktree/` 并生成或更新配置。
 3. 逐仓处理：有效 checkout 保留并登记，不切换分支、不 pull、不改 remote URL；路径已存在但不是有效 checkout 时标记冲突并跳过，不覆盖；路径不存在且有 URL 时，经确认后 clone；路径不存在且无 URL 时标记待补充，不猜测远端。
 4. 按第 6 节选择 remote，读取当前分支和 worktree 列表。当前分支与 `defaultBranch` 不一致时记录“基线漂移”，不切换分支，也不把主 checkout HEAD 当作默认基线。
 5. 将已确认的 `remote` 和 `defaultBranch` 写回对应仓库配置，复核目录状态，列出已登记、已 clone、已跳过、冲突和待补充项。

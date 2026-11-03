@@ -4,7 +4,7 @@
 
 用户要求检查、修复或清理已有主 checkout、分支 worktree 时使用本流程。只读检查不触发工作区初始化，不执行任何写操作。
 
-接管现有工作区时，只在两个基座目录的共同父级生成配置并登记主 checkout。不得移动主 checkout、删除历史 worktree 或重建分支维度 worktree，不得改变已有分支、remote、依赖或项目指令。
+接管现有工作区时，只在工作区根目录生成配置并登记主 checkout。不得移动主 checkout、删除历史 worktree 或重建分支维度 worktree，不得改变已有分支、remote、依赖或项目指令。
 
 ## 2. 只读现状清单
 

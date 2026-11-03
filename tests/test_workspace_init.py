@@ -37,15 +37,16 @@ class WorkspaceInitTests(unittest.TestCase):
             scenario,
         )
 
-    def test_root_level_worktree_layout_is_explicitly_supported(self):
+    def test_root_level_worktree_layout_is_the_default(self):
         text = read_product(self, "references/workspace-init.md")
         for token in [
-            "根级布局", "worktreeDir: .", "并列", "显式选择",
+            "默认根级布局", "worktreeDir: .", "并列", "可选",
             "已登记仓库", "不得为绝对路径",
         ]:
             self.assertIn(token, text)
         template = read_product(self, "templates/workspace-config.yaml")
-        self.assertIn("# worktreeDir: .", template)
+        self.assertIn("worktreeDir: .", template)
+        self.assertIn("# worktreeDir: WorkTree", template)
         skill = read_product(self, "SKILL.md")
         self.assertIn("root-level layout", skill)
         self.assertIn("branch paths must avoid `mainDir`", skill)
@@ -53,7 +54,7 @@ class WorkspaceInitTests(unittest.TestCase):
     def test_template_has_exact_version_one_fields(self):
         text = read_product(self, "templates/workspace-config.yaml")
         for token in [
-            "version: 1", "mainDir: main", "worktreeDir: WorkTree",
+            "version: 1", "mainDir: main", "worktreeDir: .",
             "repositories:", "name: example-api", "path: api",
             "url: git@example.com:team/example-api.git",
             "remote: origin", "defaultBranch: main",

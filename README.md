@@ -10,9 +10,9 @@ Clone or copy this repository into a skills directory supported by your agent, k
 
 Ask your agent:
 
-> Use agent-multi-repo-worktree-dev to initialize my multi-repository workspace. Ask me for and confirm the main base directory and the WorkTree base directory before creating anything. Do not create branch worktrees in this step.
+> Use agent-multi-repo-worktree-dev to initialize my multi-repository workspace. Ask me for and confirm the main base directory and worktree layout before creating anything. Use the default `worktreeDir: .` so branch directories sit beside `mainDir`; do not create branch worktrees in this step.
 
-This step only establishes the workspace configuration and the two base directories. The agent will request the two paths, show the proposed structure, and wait for confirmation.
+This step only establishes the workspace configuration. The default layout places branch directories directly under the workspace root, beside `mainDir`. The agent will request the main path, show the proposed structure, and wait for confirmation.
 
 ## Ongoing Use
 
@@ -29,7 +29,7 @@ When the repository list is omitted, the agent derives candidate repositories fr
 
 User-supplied branch names are preserved verbatim after Git reference and path-safety checks. When the user does not choose a name, the default proposal is `feature/<slug>-YYYYMMDD`, `fix/<slug>-YYYYMMDD`, or `hotfix/<slug>-YYYYMMDD` using the current date; the proposal is confirmed before use.
 
-Every `/` in a branch name becomes a nested directory level. For example, `fix/upload-retry-20261102` maps to `<worktreeDir>/fix/upload-retry-20261102/`; `feature/` and `fix/` are grouping directories that may contain multiple branch directories.
+Every `/` in a branch name becomes a nested directory level. With the default root layout, `fix/upload-retry-20261102` maps to `<workspace>/fix/upload-retry-20261102/`; `<workspace>/feature/` and `<workspace>/fix/` are grouping directories that may contain multiple branch directories.
 
 ## Directory Model
 
@@ -40,17 +40,20 @@ Every `/` in a branch name becomes a nested directory level. For example, `fix/u
 ├── <mainDir>/
 │   ├── project-a/
 │   └── project-b/
-└── <worktreeDir>/
-    └── fix/
-        └── upload-retry-20261102/
-            ├── project-a/
-            ├── project-b/
-            └── tmp/
+├── fix/
+│   └── upload-retry-20261102/
+│       ├── project-a/
+│       ├── project-b/
+│       └── tmp/
+└── feature/
+    └── order-export-20261102/
+        ├── project-a/
+        └── tmp/
 ```
 
-Each development effort uses one shared branch name and one branch directory. Primary checkouts remain under `<mainDir>`; development worktrees and handoff records remain under `<worktreeDir>`.
+Each development effort uses one shared branch name and one branch directory directly under the workspace root. Primary checkouts remain under `<mainDir>`; development worktrees and handoff records remain in the branch directory beside it.
 
-If an existing workspace keeps branch directories beside `mainDir` instead of inside a separate `WorkTree` directory, set `worktreeDir: .` in the configuration. This root-level layout is explicit: branch paths start at the workspace root and must not collide with `mainDir` or any registered repository.
+A separate worktree base is optional: set `worktreeDir` to a sibling directory only when the user explicitly prefers one. The separate base and `<mainDir>` must not nest, and branch paths must still avoid `mainDir` and every registered repository in the default layout.
 
 ## Documentation
 
