@@ -55,6 +55,12 @@ Each development effort uses one shared branch name and one branch directory dir
 
 A separate worktree base is optional: set `worktreeDir` to a sibling directory only when the user explicitly prefers one. The separate base and `<mainDir>` must not nest, and branch paths must still avoid `mainDir` and every registered repository in the default layout.
 
+## Merge Direction and Deployment Isolation
+
+Merge direction is one-way: only a development branch may merge **into** its confirmed target deployment branch. Never merge, rebase, pull, reset, or cherry-pick the deployment branch back into the development branch, and never hand-copy environment-specific deployment commits, even to resolve conflicts or align environments. Deployment-only changes stay on the deployment branch and must not pollute the development branch.
+
+When the deployment branch needs a fix, land it on the development branch and merge forward again. If a fix already landed directly on the deployment branch, reproduce it on the development branch as a new commit and merge forward instead of reverse-merging. Before any merge, compare `git log <deploy>..<dev>` with `git log <dev>..<deploy>` to confirm the commits that will enter the deployment branch and that nothing needs to flow back. A development branch that already contains deployment-branch commits is polluted: report the commits and merge source, stop deployment writes, and let the user confirm any history cleanup.
+
 ## Documentation
 
 | Document | Purpose |
