@@ -35,6 +35,8 @@ Do not develop from a confirmed deployment-environment branch. Treat merge direc
 
 Before writing, validate configuration, paths, repository state, and baselines; present the proposed targets and impacts and obtain each confirmation required by the selected reference. Preserve existing history and conflicts, keep operations idempotent, and stop when evidence is missing or ambiguous.
 
+需求之外的改动，必须停下来征求同意后进行。
+
 For deployment, independently trace each target repository's CI/CD configuration, includes, scripts, and checks at the target commit. Do not assume environment refs, tag formats, or promotion order; confirm deployment write operations separately.
 
 Report only verified results, with commit, command, path, or deployment evidence. Distinguish completed, skipped, blocked, and partial work; update handoff records as facts change.
